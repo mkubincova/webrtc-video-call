@@ -23,6 +23,27 @@
         <button id="connect">Connect</button>
       </div>
 
+      <!-- Video elements -->
+      <div id="videos" style="display: flex; gap: 10px; margin-top: 10px">
+        <video
+          id="localVideo"
+          autoplay
+          muted
+          playsinline
+          style="width: 300px; background: #000"
+        ></video>
+        <video
+          id="remoteVideo"
+          autoplay
+          playsinline
+          style="width: 300px; background: #000"
+        ></video>
+      </div>
+      <div style="margin: 10px 0">
+        <button id="startCall" disabled>📞 Start Call</button>
+        <button id="endCall" disabled>📞 End Call</button>
+      </div>
+
       <!-- Chat box -->
       <div
         id="chat"
