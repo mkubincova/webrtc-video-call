@@ -7,8 +7,7 @@ const chatDiv = document.querySelector<HTMLDivElement>("#chat");
 const messageInput = document.querySelector<HTMLInputElement>("#message");
 const sendMessageBtn =
   document.querySelector<HTMLButtonElement>("#sendMessage");
-const statusDot = document.getElementById("statusDot") as HTMLSpanElement;
-const statusText = document.getElementById("statusText") as HTMLSpanElement;
+const userCount = document.getElementById("userCount") as HTMLSpanElement;
 
 if (
   !chatDiv ||
@@ -30,21 +29,6 @@ function appendMessage(author: string, text: string, color = "#333") {
   chatDiv!.appendChild(el);
   chatDiv!.scrollTop = chatDiv!.scrollHeight; // auto-scroll
 }
-function updateStatus(state: "connecting" | "connected" | "disconnected") {
-  if (state === "connecting") {
-    statusDot.textContent = "🟠";
-    statusText.textContent = "Connecting...";
-    statusText.style.color = "orange";
-  } else if (state === "connected") {
-    statusDot.textContent = "🟢";
-    statusText.textContent = "Connected";
-    statusText.style.color = "green";
-  } else {
-    statusDot.textContent = "🔴";
-    statusText.textContent = "Disconnected";
-    statusText.style.color = "red";
-  }
-}
 
 // --- Connect button handler ---
 connectBtn.onclick = () => {
@@ -53,29 +37,31 @@ connectBtn.onclick = () => {
   username = name;
 
   // Initialize signaling client
-  updateStatus("connecting");
   signaling = new SignalingClient("ws://localhost:8888");
 
-  signaling["ws"].onopen = () => {
-    updateStatus("connected");
+  signaling.on("open", () => {
     appendMessage("System", `Connected as "${username}"`, "#6c5ce7");
     sendMessageBtn.disabled = false;
     messageInput.disabled = false;
     connectBtn.disabled = true;
     usernameInput.disabled = true;
-  };
+  });
 
-  signaling["ws"].onclose = () => {
-    updateStatus("disconnected");
-    appendMessage("System", `Disconnected from signaling server`, "#d63031");
+  signaling.on("close", () => {
+    appendMessage("System", `Not connected to signaling server`, "#d63031");
     sendMessageBtn.disabled = true;
     messageInput.disabled = true;
-  };
+    connectBtn.disabled = false;
+    usernameInput.disabled = false;
+  });
 
-  // Listen for incoming messages
-  signaling.onMessage((msg) => {
+  signaling.on("message", (msg) => {
     if (msg.type === "chat") {
       appendMessage(msg.payload.username, msg.payload.text, "#0984e3");
+    } else if (msg.type === "user_count") {
+      userCount.textContent = `👥 ${msg.payload.count} user${
+        msg.payload.count === 1 ? "" : "s"
+      }`;
     }
   });
 };

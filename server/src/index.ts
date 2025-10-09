@@ -13,9 +13,18 @@ const wss = new WebSocketServer({ port: PORT });
 // Track all connected clients
 const clients = new Set<WebSocket>();
 
+function broadcast(msg: Message) {
+  for (const client of clients) {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(msg));
+    }
+  }
+}
+
 wss.on("connection", (ws) => {
-  console.log("New client connected");
   clients.add(ws);
+  console.log(pc.green(`New client connected. Total: ${clients.size}`));
+  broadcast({ type: "user_count", payload: { count: clients.size } });
 
   ws.on("message", (data) => {
     try {
@@ -28,13 +37,14 @@ wss.on("connection", (ws) => {
         }
       }
     } catch (err) {
-      console.error("Invalid message received:", err);
+      console.error(pc.red("Invalid message received:"), err);
     }
   });
 
   ws.on("close", () => {
     clients.delete(ws);
-    console.log("Client disconnected");
+    console.log(pc.yellow(`Client disconnected. Total: ${clients.size}`));
+    broadcast({ type: "user_count", payload: { count: clients.size } });
   });
 });
 
