@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,7 +7,43 @@
     <title>video-call-app</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <h1>WebRTC Chat (Signaling)</h1>
+
+      <!-- Connection status -->
+      <div id="status" style="margin-bottom: 8px; font-weight: 500">
+        <span id="statusDot" style="color: orange">🟠</span>
+        <span id="statusText">Not connected</span>
+      </div>
+
+      <!-- Username input -->
+      <div style="margin-bottom: 8px">
+        <input id="username" type="text" placeholder="Enter your name..." />
+        <button id="connect">Connect</button>
+      </div>
+
+      <!-- Chat box -->
+      <div
+        id="chat"
+        style="
+          height: 200px;
+          overflow-y: auto;
+          border: 1px solid #ccc;
+          padding: 8px;
+          margin-bottom: 8px;
+        "
+      ></div>
+
+      <!-- Message input -->
+      <input
+        id="message"
+        type="text"
+        placeholder="Type a message..."
+        style="width: 70%"
+        disabled
+      />
+      <button id="sendMessage" disabled>Send</button>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
