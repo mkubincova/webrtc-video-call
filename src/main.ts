@@ -1,10 +1,24 @@
 import { SignalingClient } from "./signaling";
 import { WebRTCManager } from "./webrtc";
 
+// Get URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const username = urlParams.get("username")?.trim();
+const roomId = urlParams.get("roomId")?.trim();
+
+if (!username || !roomId) {
+  alert("Invalid room access. Please join through the main page.");
+  window.location.href = "index.html";
+  throw new Error("No URL parameters found");
+}
+
+if (username.length < 2 || roomId.length < 3) {
+  alert("Invalid username or room ID.");
+  window.location.href = "index.html";
+  throw new Error("Invalid parameters");
+}
+
 // DOM elements
-const connectBtn = document.querySelector<HTMLButtonElement>("#connect");
-const usernameInput = document.querySelector<HTMLInputElement>("#username");
-const roomIdInput = document.querySelector<HTMLInputElement>("#roomId");
 const chatDiv = document.querySelector<HTMLDivElement>("#chat");
 const messageInput = document.querySelector<HTMLInputElement>("#message");
 const sendMessageBtn =
@@ -21,22 +35,17 @@ if (
   !chatDiv ||
   !messageInput ||
   !sendMessageBtn ||
-  !connectBtn ||
   !leaveRoomBtn ||
-  !usernameInput ||
-  !roomIdInput ||
   !startCallBtn ||
   !endCallBtn
 ) {
   throw new Error("Required DOM elements not found");
 }
 
-let username = "";
-let roomId = "";
 let signaling: SignalingClient;
 let webrtc: WebRTCManager;
 
-// Utility
+//  💬 Chat Utilities
 function appendMessage(author: string, text: string, color = "#333") {
   const el = document.createElement("p");
   el.innerHTML = `<strong style="color:${color}">${author}:</strong> ${text}`;
@@ -44,121 +53,84 @@ function appendMessage(author: string, text: string, color = "#333") {
   chatDiv!.scrollTop = chatDiv!.scrollHeight; // auto-scroll
 }
 
+// 🚪 Room Management
 function leaveRoom() {
   // Clean up WebRTC
-  webrtc?.cleanup();
+  webrtc.cleanup();
 
   // Close signaling connection
-  if (signaling) {
-    signaling.send("leave-room", { username, roomId });
-  }
+  if (signaling) signaling.send("leave-room", { username, roomId });
 
-  // Reset UI state
-  appendMessage("System", `Left room "${roomId}"`, "#d63031");
-  roomInfo.textContent = "Not in a room";
-  userCount.textContent = "👥 0 users";
-
-  // Reset form controls
-  connectBtn!.disabled = false;
-  leaveRoomBtn!.disabled = true;
-  usernameInput!.disabled = false;
-  roomIdInput!.disabled = false;
-  sendMessageBtn!.disabled = true;
-  messageInput!.disabled = true;
-  startCallBtn!.disabled = true;
-  endCallBtn!.disabled = true;
-
-  roomInfo.textContent = "Not in a room";
-  webrtc?.cleanup();
-
-  // Clear input values if desired
-  messageInput!.value = "";
-
-  // Reset variables
-  username = "";
-  roomId = "";
+  // Redirect to index page
+  window.location.href = "index.html";
 }
 
-// Connect button handler
-connectBtn.onclick = () => {
-  const name = usernameInput.value.trim();
-  const room = roomIdInput.value.trim();
+// 🔗 Initialize Room
+signaling = new SignalingClient("ws://localhost:8888");
+webrtc = new WebRTCManager(signaling, localVideo, remoteVideo, appendMessage);
 
-  if (!name) return alert("Please enter a username!");
-  if (!room) return alert("Please enter a room ID!");
+roomInfo.textContent = `Room: ${roomId}`;
+document.title = `Room ${roomId} - Video Call`;
 
-  username = name;
-  roomId = room;
+signaling.on("open", () => {
+  signaling.send("join-room", { username, roomId });
+});
 
-  // Initialize signaling client
-  signaling = new SignalingClient("ws://localhost:8888");
+signaling.on("close", () => {
+  appendMessage("System", "Disconnected from server", "#d63031");
+  leaveRoom();
+});
 
-  // Initialize WebRTC manager
-  webrtc = new WebRTCManager(signaling, localVideo, remoteVideo, appendMessage);
+signaling.on("message", (msg) => {
+  switch (msg.type) {
+    case "room-joined":
+      webrtc.startLocalVideo(); // Start local video capture
+      appendMessage("System", `Welcome to room "${roomId}"`, "#6c5ce7");
+      break;
 
-  signaling.on("open", () => {
-    signaling.send("join-room", { username, roomId });
-  });
+    case "room-full":
+      alert(
+        `Room "${roomId}" is full! Maximum ${msg.payload.maxSize} users allowed.`
+      );
+      leaveRoom();
+      break;
 
-  signaling.on("close", () => {
-    appendMessage("System", "Disconnected from server", "#d63031");
-    leaveRoom();
-  });
+    case "room-ready":
+      appendMessage("System", msg.payload.message, "#00b894");
+      break;
 
-  signaling.on("message", (msg) => {
-    switch (msg.type) {
-      case "room-joined":
-        webrtc.startLocalVideo(); // Start local video capture
-        appendMessage("System", `Joined room "${roomId}"`, "#6c5ce7");
-        roomInfo.textContent = `Room: ${roomId}`;
-        sendMessageBtn.disabled = false;
-        messageInput.disabled = false;
-        connectBtn.disabled = true;
-        usernameInput.disabled = true;
-        roomIdInput.disabled = true;
-        startCallBtn.disabled = false;
-        leaveRoomBtn.disabled = false;
-        break;
-      case "room-full":
-        alert(
-          `Room "${msg.payload.roomId}" is full! Maximum ${msg.payload.maxSize} users allowed.`
-        );
-        appendMessage(
-          "System",
-          `Room "${msg.payload.roomId}" is full (max ${msg.payload.maxSize} users)`,
-          "#d63031"
-        );
-        break;
-      case "room-ready":
-        appendMessage("System", msg.payload.message, "#00b894");
-        break;
-      case "room-user-count":
-        userCount.textContent = `👥 ${msg.payload.count} user${
-          msg.payload.count === 1 ? "" : "s"
-        }`;
-        break;
-      case "chat":
-        appendMessage(msg.payload.username, msg.payload.text, "#0984e3");
-        break;
-      case "offer":
-        webrtc.handleOffer(msg.payload.offer);
-        startCallBtn.disabled = true;
-        endCallBtn.disabled = false;
-        break;
-      case "answer":
-        webrtc.handleAnswer(msg.payload.answer);
-        break;
-      case "ice-candidate":
-        webrtc.handleIceCandidate(msg.payload.candidate);
-        break;
-      case "call-ended":
-        webrtc.endCall();
-        break;
-      default:
-        console.warn("Unknown message type:", msg.type);
-    }
-  });
-};
+    case "room-user-count":
+      userCount.textContent = `👥 ${msg.payload.count} user${
+        msg.payload.count === 1 ? "" : "s"
+      }`;
+      break;
+
+    case "chat":
+      appendMessage(msg.payload.username, msg.payload.text, "#0984e3");
+      break;
+
+    case "offer":
+      webrtc.handleOffer(msg.payload.offer);
+      break;
+
+    case "answer":
+      webrtc.handleAnswer(msg.payload.answer);
+      break;
+
+    case "ice-candidate":
+      webrtc.handleIceCandidate(msg.payload.candidate);
+      break;
+
+    case "call-ended":
+      webrtc.endCall();
+      startCallBtn.disabled = false;
+      endCallBtn.disabled = true;
+      break;
+
+    default:
+      console.warn("Unknown message type:", msg.type);
+  }
+});
 
 // Messaging handlers
 sendMessageBtn.onclick = () => {
