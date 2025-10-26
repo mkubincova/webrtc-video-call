@@ -3,11 +3,13 @@ import { SignalingClient } from "./signaling";
 // --- DOM elements ---
 const connectBtn = document.querySelector<HTMLButtonElement>("#connect");
 const usernameInput = document.querySelector<HTMLInputElement>("#username");
+const roomIdInput = document.querySelector<HTMLInputElement>("#roomId");
 const chatDiv = document.querySelector<HTMLDivElement>("#chat");
 const messageInput = document.querySelector<HTMLInputElement>("#message");
 const sendMessageBtn =
   document.querySelector<HTMLButtonElement>("#sendMessage");
 const userCount = document.getElementById("userCount") as HTMLSpanElement;
+const roomInfo = document.getElementById("roomInfo") as HTMLSpanElement;
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
 const startCallBtn = document.querySelector<HTMLButtonElement>("#startCall");
@@ -19,6 +21,7 @@ if (
   !sendMessageBtn ||
   !connectBtn ||
   !usernameInput ||
+  !roomIdInput ||
   !startCallBtn ||
   !endCallBtn
 ) {
@@ -26,6 +29,7 @@ if (
 }
 
 let username = "";
+let roomId = "";
 let signaling: SignalingClient;
 let localStream: MediaStream;
 // let remoteStream: MediaStream;
@@ -93,8 +97,6 @@ async function startLocalVideo() {
     });
     localVideo.srcObject = localStream;
     appendMessage("System", "Camera and microphone access granted", "#00b894");
-    // Create peer connection after getting local stream
-    createPeerConnection();
   } catch (error) {
     console.error("Error accessing media devices:", error);
     appendMessage("System", "Failed to access camera/microphone", "#d63031");
@@ -118,6 +120,9 @@ function endCall() {
 
 // --- WebRTC signaling functions ---
 async function createOffer() {
+  if (!pc) {
+    createPeerConnection();
+  }
   if (!pc) return;
 
   try {
@@ -132,6 +137,9 @@ async function createOffer() {
 }
 
 async function handleOffer(offer: RTCSessionDescriptionInit) {
+  if (!pc) {
+    createPeerConnection();
+  }
   if (!pc) return;
 
   try {
@@ -172,47 +180,81 @@ async function handleIceCandidate(candidate: RTCIceCandidateInit) {
 // --- Connect button handler ---
 connectBtn.onclick = () => {
   const name = usernameInput.value.trim();
+  const room = roomIdInput.value.trim();
   if (!name) return alert("Please enter a username!");
+  if (!room) return alert("Please enter a room ID!");
   username = name;
-
-  // Start local video capture
-  startLocalVideo();
+  roomId = room;
 
   // Initialize signaling client
   signaling = new SignalingClient("ws://localhost:8888");
 
   signaling.on("open", () => {
-    appendMessage("System", `Connected as "${username}"`, "#6c5ce7");
-    sendMessageBtn.disabled = false;
-    messageInput.disabled = false;
-    connectBtn.disabled = true;
-    usernameInput.disabled = true;
-    startCallBtn.disabled = false;
+    // Join the specific room
+    signaling.send("join-room", { username, roomId });
   });
 
   signaling.on("close", () => {
-    appendMessage("System", `Not connected to signaling server`, "#d63031");
+    appendMessage("System", "Disconnected from server", "#d63031");
     sendMessageBtn.disabled = true;
     messageInput.disabled = true;
     connectBtn.disabled = false;
     usernameInput.disabled = false;
     startCallBtn.disabled = true;
     endCallBtn.disabled = true;
+    roomInfo.textContent = "Not in a room";
   });
 
   signaling.on("message", (msg) => {
-    if (msg.type === "chat") {
-      appendMessage(msg.payload.username, msg.payload.text, "#0984e3");
-    } else if (msg.type === "user_count") {
-      userCount.textContent = `👥 ${msg.payload.count} user${
-        msg.payload.count === 1 ? "" : "s"
-      }`;
-    } else if (msg.type === "offer") {
-      handleOffer(msg.payload.offer);
-    } else if (msg.type === "answer") {
-      handleAnswer(msg.payload.answer);
-    } else if (msg.type === "ice-candidate") {
-      handleIceCandidate(msg.payload.candidate);
+    switch (msg.type) {
+      case "room-joined":
+        startLocalVideo(); // Start local video capture
+        appendMessage("System", `Joined room "${roomId}"`, "#6c5ce7");
+        roomInfo.textContent = `Room: ${roomId}`;
+        sendMessageBtn.disabled = false;
+        messageInput.disabled = false;
+        connectBtn.disabled = true;
+        usernameInput.disabled = true;
+        roomIdInput.disabled = true;
+        startCallBtn.disabled = false;
+        break;
+      case "room-full":
+        alert(
+          `Room "${msg.payload.roomId}" is full! Maximum ${msg.payload.maxSize} users allowed.`
+        );
+        appendMessage(
+          "System",
+          `Room "${msg.payload.roomId}" is full (max ${msg.payload.maxSize} users)`,
+          "#d63031"
+        );
+        break;
+      case "room-ready":
+        appendMessage("System", msg.payload.message, "#00b894");
+        break;
+      case "room-user-count":
+        userCount.textContent = `👥 ${msg.payload.count} user${
+          msg.payload.count === 1 ? "" : "s"
+        }`;
+        break;
+      case "chat":
+        appendMessage(msg.payload.username, msg.payload.text, "#0984e3");
+        break;
+      case "offer":
+        handleOffer(msg.payload.offer);
+        startCallBtn.disabled = true;
+        endCallBtn.disabled = false;
+        break;
+      case "answer":
+        handleAnswer(msg.payload.answer);
+        break;
+      case "ice-candidate":
+        handleIceCandidate(msg.payload.candidate);
+        break;
+      case "call-ended":
+        endCall();
+        break;
+      default:
+        console.warn("Unknown message type:", msg.type);
     }
   });
 };
@@ -223,7 +265,7 @@ sendMessageBtn.onclick = () => {
   if (!text) return;
 
   appendMessage("You", text, "#00b894");
-  signaling.send("chat", { username, text });
+  signaling.send("chat", { username, text, roomId });
 
   messageInput.value = "";
 };
