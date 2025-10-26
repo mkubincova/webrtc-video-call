@@ -4,71 +4,74 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>video-call-app</title>
+    <title>Video call app</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="app">
-      <h1>WebRTC Chat (Signaling)</h1>
+      <div>
+        <h1>WebRTC Chat (Signaling)</h1>
 
-      <!-- Connection status -->
-      <div id="status" style="margin-bottom: 8px; font-weight: 500">
-        <span id="roomInfo" style="color: #6c5ce7">Not in a room</span>
-        <span id="userCount" style="margin-left: 10px; color: #666"
-          >👥 0 users</span
-        >
+        <!-- Connection status -->
+        <div id="status" style="margin-bottom: 8px; font-weight: 500">
+          <span id="roomInfo" style="color: #6c5ce7">Not in a room</span>
+          <span id="userCount" style="margin-left: 10px; color: #666"
+            >👥 0 users</span
+          >
+        </div>
+
+        <!-- Username and room input -->
+        <div style="margin-bottom: 8px">
+          <button
+            id="leaveRoom"
+            style="margin-left: 10px; background-color: #d63031; color: white"
+          >
+            Leave Room
+          </button>
+        </div>
+
+        <!-- Video elements -->
+        <div id="videos" style="display: flex; gap: 10px; margin-top: 10px">
+          <video
+            id="localVideo"
+            autoplay
+            muted
+            playsinline
+            style="width: 300px; background: #000"
+          ></video>
+          <video
+            id="remoteVideo"
+            autoplay
+            playsinline
+            style="width: 300px; background: #000"
+          ></video>
+        </div>
+        <div style="margin: 10px 0">
+          <button id="startCall">📞 Start Call</button>
+          <button id="endCall" disabled>📞 End Call</button>
+        </div>
+
+        <!-- Chat box -->
+        <div
+          id="chat"
+          style="
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 8px;
+            margin-bottom: 8px;
+          "
+        ></div>
+
+        <!-- Message input -->
+        <input
+          id="message"
+          type="text"
+          placeholder="Type a message..."
+          style="width: 70%"
+        />
+        <button id="sendMessage">Send</button>
       </div>
-
-      <!-- Username and room input -->
-      <div style="margin-bottom: 8px">
-        <button
-          id="leaveRoom"
-          style="margin-left: 10px; background-color: #d63031; color: white"
-        >
-          Leave Room
-        </button>
-      </div>
-
-      <!-- Video elements -->
-      <div id="videos" style="display: flex; gap: 10px; margin-top: 10px">
-        <video
-          id="localVideo"
-          autoplay
-          muted
-          playsinline
-          style="width: 300px; background: #000"
-        ></video>
-        <video
-          id="remoteVideo"
-          autoplay
-          playsinline
-          style="width: 300px; background: #000"
-        ></video>
-      </div>
-      <div style="margin: 10px 0">
-        <button id="startCall">📞 Start Call</button>
-        <button id="endCall" disabled>📞 End Call</button>
-      </div>
-
-      <!-- Chat box -->
-      <div
-        id="chat"
-        style="
-          height: 200px;
-          overflow-y: auto;
-          border: 1px solid #ccc;
-          padding: 8px;
-          margin-bottom: 8px;
-        "
-      ></div>
-
-      <!-- Message input -->
-      <input
-        id="message"
-        type="text"
-        placeholder="Type a message..."
-        style="width: 70%"
-      />
-      <button id="sendMessage">Send</button>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

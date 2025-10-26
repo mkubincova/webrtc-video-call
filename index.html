@@ -5,84 +5,37 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Join Video Call</title>
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="app">
-      <div
-        style="
-          max-width: 400px;
-          margin: 100px auto;
-          text-align: center;
-          padding: 40px;
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          background: #f9f9f9;
-        "
-      >
-        <h1 style="color: #6c5ce7; margin-bottom: 30px">🎥 Video Call App</h1>
+      <div class="join-container">
+        <h1>🎥 Video Call App</h1>
 
-        <form
-          id="joinForm"
-          action="room.html"
-          method="GET"
-          style="margin-bottom: 20px"
-        >
+        <form id="joinForm" action="room.html" method="GET">
+          <label for="username">Username</label>
           <input
             id="username"
             type="text"
             name="username"
-            placeholder="Enter your name..."
+            placeholder="Frodo"
             required
             minlength="2"
-            style="
-              width: 100%;
-              padding: 12px;
-              font-size: 16px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              margin-bottom: 15px;
-              box-sizing: border-box;
-            "
           />
+
+          <label for="roomId">Room code</label>
           <input
             id="roomId"
             type="text"
             name="roomId"
-            placeholder="Room ID (e.g. room123)"
+            placeholder="THE_SHIRE_123"
             required
             minlength="3"
-            style="
-              width: 100%;
-              padding: 12px;
-              font-size: 16px;
-              border: 1px solid #ccc;
-              border-radius: 4px;
-              margin-bottom: 20px;
-              box-sizing: border-box;
-            "
           />
-          <button
-            type="submit"
-            id="connect"
-            style="
-              width: 100%;
-              padding: 15px;
-              font-size: 16px;
-              background: #6c5ce7;
-              color: white;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-            "
-          >
-            Join Room
-          </button>
-        </form>
+          <small>Maximum 2 people per room, share carefully :)</small>
 
-        <p style="color: #666; font-size: 14px; margin-top: 20px">
-          Enter a room ID to start or join a video call.<br />
-          Maximum 2 people per room.
-        </p>
+          <button type="submit">Join Room</button>
+        </form>
       </div>
     </div>
   </body>

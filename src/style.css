@@ -1,0 +1,83 @@
+* {
+  --border-radius: 1.5em;
+  --border-radius-sm: 0.5em;
+
+  --color-base: #f8f8f1;
+  --color-base-dark: #f1efe4;
+  --color-base-light: #ffffff;
+
+  --color-text: #222222;
+
+  --color-green: #c7d0bd;
+  --color-green-dark: #8da776;
+}
+
+html {
+  font-family: Arial, sans-serif;
+  background-color: var(--color-base);
+  color: var(--color-text);
+}
+
+label {
+  display: block;
+  margin: 0 0 6px 6px;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  box-sizing: border-box;
+  border-radius: var(--border-radius-sm);
+}
+
+input[type="text"] ~ label {
+  margin-top: 20px;
+}
+
+button {
+  padding: 12px 16px;
+  background-color: var(--color-text);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+#app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.join-container {
+  width: 100%;
+  max-width: 500px;
+  padding: 20px 40px;
+  border-radius: var(--border-radius);
+  background-color: var(--color-green);
+
+  & h1 {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  & button {
+    display: block;
+    margin: 40px auto 20px auto;
+  }
+
+  & small {
+    display: block;
+    margin: 6px 0 0 6px;
+    opacity: 0.6;
+    font-style: italic;
+  }
+}
