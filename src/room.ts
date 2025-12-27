@@ -9,13 +9,13 @@ const roomId = urlParams.get("roomId")?.trim();
 
 if (!username || !roomId) {
   alert("Invalid room access. Please join through the main page.");
-  window.location.href = "index.html";
+  window.location.href = "/";
   throw new Error("No URL parameters found");
 }
 
 if (username.length < 2 || roomId.length < 3) {
   alert("Invalid username or room ID.");
-  window.location.href = "index.html";
+  window.location.href = "/";
   throw new Error("Invalid parameters");
 }
 
@@ -63,7 +63,7 @@ function leaveRoom() {
   if (signaling) signaling.send("leave-room", { username, roomId });
 
   // Redirect to index page
-  window.location.href = "index.html";
+  window.location.href = "/";
 }
 
 // 🔗 Initialize Room
@@ -79,7 +79,7 @@ signaling.on("open", () => {
 
 signaling.on("close", () => {
   appendMessage("System", "Disconnected from server", "#d63031");
-  leaveRoom();
+  // leaveRoom();
 });
 
 signaling.on("message", (msg) => {
