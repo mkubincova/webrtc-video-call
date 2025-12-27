@@ -1,7 +1,6 @@
 import { WebSocketServer, WebSocket } from "ws";
 import pc from "picocolors";
 import { config } from "dotenv";
-import { createServer } from "http";
 
 // Load environment variables
 config();
@@ -21,19 +20,6 @@ type Client = {
 const PORT = process.env.PORT || 8888;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 
-// const server = createServer((req, res) => {
-//   if (req.url === "/health") {
-//     res.writeHead(200, { "Content-Type": "application/json" });
-//     res.end(
-//       JSON.stringify({ status: "ok", timestamp: new Date().toISOString() })
-//     );
-//   } else {
-//     res.writeHead(404);
-//     res.end("WebSocket server running");
-//   }
-// });
-
-// const wss = new WebSocketServer({ server });
 const wss = new WebSocketServer({ port: Number(PORT), host: HOST });
 
 // Track clients by room
@@ -154,19 +140,9 @@ wss.on("connection", (ws) => {
   });
 });
 
-// Start the server
-// server.listen(
-//   {
-//     port: Number(PORT),
-//     host: HOST,
-//   },
-//   () => {
 console.log(
   `\n🚀 ${pc.bold("Signaling server running at:")} ${pc.cyan(
     `ws://${HOST}:${PORT}`
   )}\n`
 );
-// console.log(`📡 Health check available at: http://${HOST}:${PORT}/health`);
 console.log("Waiting for clients to connect...");
-//   }
-// );

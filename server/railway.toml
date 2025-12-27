@@ -1,9 +1,0 @@
-[build]
-command = "npm run build"
-
-[deploy]
-startCommand = "npm start"
-restartPolicyType = "always"
-
-[[services]]
-name = "webrtc-server"
