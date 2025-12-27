@@ -1,5 +1,9 @@
 import { WebSocketServer, WebSocket } from "ws";
 import pc from "picocolors";
+import { config } from "dotenv";
+
+// Load environment variables
+config();
 
 type Message = {
   type: string; // e.g., 'offer', 'answer', 'ice'

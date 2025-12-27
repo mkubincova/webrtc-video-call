@@ -1,3 +1,4 @@
+import { WEBSOCKET_URL } from "./config";
 import { SignalingClient } from "./signaling";
 import { WebRTCManager } from "./webrtc";
 
@@ -66,7 +67,7 @@ function leaveRoom() {
 }
 
 // 🔗 Initialize Room
-signaling = new SignalingClient("ws://localhost:8888");
+signaling = new SignalingClient(WEBSOCKET_URL);
 webrtc = new WebRTCManager(signaling, localVideo, remoteVideo, appendMessage);
 
 roomInfo.textContent = `Room: ${roomId}`;
