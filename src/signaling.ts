@@ -1,3 +1,17 @@
+/*
+ ═══════════════════════════════════════════════════════════════════════════════
+                            📡 WebSocket Signaling Client
+ ═══════════════════════════════════════════════════════════════════════════════
+  Handles WebSocket communication for WebRTC signaling between peers in video call rooms.
+ 
+  Features:
+  • WebSocket connection management
+  • Event-driven message handling
+  • Room joining/leaving coordination
+  • Signaling message exchange (offers, answers, ICE candidates)
+ ═══════════════════════════════════════════════════════════════════════════════
+*/
+
 export type SignalMessage = {
   type: string;
   payload?: any;
