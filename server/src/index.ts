@@ -18,7 +18,7 @@ type Client = {
 };
 
 // Create a WebSocket server
-const PORT = 8888;
+const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 8888;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 
 const server = createServer((req, res) => {
@@ -154,12 +154,18 @@ wss.on("connection", (ws) => {
 });
 
 // Start the server
-server.listen(PORT, HOST, () => {
-  console.log(
-    `\n🚀 ${pc.bold("Signaling server running at:")} ${pc.cyan(
-      `ws://${HOST}:${PORT}`
-    )}\n`
-  );
-  console.log(`📡 Health check available at: http://${HOST}:${PORT}/health`);
-  console.log("Waiting for clients to connect...");
-});
+server.listen(
+  {
+    port: Number(PORT),
+    host: HOST,
+  },
+  () => {
+    console.log(
+      `\n🚀 ${pc.bold("Signaling server running at:")} ${pc.cyan(
+        `ws://${HOST}:${PORT}`
+      )}\n`
+    );
+    console.log(`📡 Health check available at: http://${HOST}:${PORT}/health`);
+    console.log("Waiting for clients to connect...");
+  }
+);
