@@ -13,8 +13,9 @@ type Client = {
 };
 
 // Create a WebSocket server
-const PORT = 8888;
-const wss = new WebSocketServer({ port: PORT });
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8888;
+const HOST = process.env.HOST || "0.0.0.0";
+const wss = new WebSocketServer({ port: PORT, host: HOST });
 
 // Track clients by room
 const rooms = new Map<string, Set<Client>>();
@@ -136,7 +137,7 @@ wss.on("connection", (ws) => {
 
 console.log(
   `\n🚀 ${pc.bold("Signaling server running at:")} ${pc.cyan(
-    `ws://localhost:${PORT}`
+    `ws://${HOST}:${PORT}`
   )}\n`
 );
 console.log("Waiting for clients to connect...");
