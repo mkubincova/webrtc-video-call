@@ -18,7 +18,7 @@ type Client = {
 };
 
 // Create a WebSocket server
-const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 8888;
+const PORT = process.env.PORT || 8888;
 const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 
 const server = createServer((req, res) => {
