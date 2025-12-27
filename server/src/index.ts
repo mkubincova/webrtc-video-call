@@ -17,8 +17,8 @@ type Client = {
 };
 
 // Create a WebSocket server
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8888;
-const HOST = process.env.HOST || "0.0.0.0";
+const PORT = 8888;
+const HOST = process.env.NODE_ENV === "production" ? "0.0.0.0" : "localhost";
 const wss = new WebSocketServer({ port: PORT, host: HOST });
 
 // Track clients by room

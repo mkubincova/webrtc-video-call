@@ -79,7 +79,7 @@ signaling.on("open", () => {
 
 signaling.on("close", () => {
   appendMessage("System", "Disconnected from server", "#d63031");
-  // leaveRoom();
+  leaveRoom();
 });
 
 signaling.on("message", (msg) => {
