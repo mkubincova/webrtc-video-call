@@ -8,69 +8,62 @@
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <div id="app">
-      <div>
-        <h1>WebRTC Chat (Signaling)</h1>
-
-        <!-- Connection status -->
-        <div id="status" style="margin-bottom: 8px; font-weight: 500">
-          <span id="roomInfo" style="color: #6c5ce7">Not in a room</span>
-          <span id="userCount" style="margin-left: 10px; color: #666"
-            >👥 0 users</span
-          >
+    <div id="app" class="app">
+      <!-- Connection status -->
+      <div id="status" class="status-sidebar">
+        <div class="status-info">
+          <h2 id="roomInfo">Not in a room</h2>
+          <p id="userCount">👥 0 users</p>
         </div>
-
+        <div id="systemMessages" class="system-messages"></div>
         <!-- Username and room input -->
-        <div style="margin-bottom: 8px">
-          <button
-            id="leaveRoom"
-            style="margin-left: 10px; background-color: #d63031; color: white"
-          >
-            Leave Room
-          </button>
+        <div class="status-actions">
+          <button id="leaveRoom" class="leave-btn">Leave Room</button>
         </div>
+      </div>
 
-        <!-- Video elements -->
-        <div id="videos" style="display: flex; gap: 10px; margin-top: 10px">
-          <video
-            id="localVideo"
-            autoplay
-            muted
-            playsinline
-            style="width: 300px; background: #000"
-          ></video>
-          <video
-            id="remoteVideo"
-            autoplay
-            playsinline
-            style="width: 300px; background: #000"
-          ></video>
+      <div id="content" class="main-content">
+        <h1>WebRTC Chat and Video Call</h1>
+        <h2 class="subtitle">
+          Once the other user joins the room, you'll be able to call and chat
+          with them. The messages are only visible to people currently in the
+          room and will disapper once both of you leave.
+        </h2>
+        <div class="content-layout">
+          <div class="video-section">
+            <!-- Video elements -->
+            <div id="videos" class="videos-container">
+              <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline
+                class="local-video"
+              ></video>
+              <video
+                id="remoteVideo"
+                autoplay
+                playsinline
+                class="remote-video"
+              ></video>
+            </div>
+            <div class="video-controls">
+              <button id="startCall" disabled>📞 Start Call</button>
+              <button id="endCall" disabled>📞 End Call</button>
+            </div>
+          </div>
+
+          <div class="chat-section">
+            <!-- Chat box -->
+            <div id="chat" class="chat-messages"></div>
+
+            <!-- Message input -->
+            <form id="messageForm" class="message-form">
+              <input id="message" type="text" placeholder="Type a message..." />
+              <button id="sendMessage" type="submit" disabled>Send</button>
+            </form>
+          </div>
         </div>
-        <div style="margin: 10px 0">
-          <button id="startCall">📞 Start Call</button>
-          <button id="endCall" disabled>📞 End Call</button>
-        </div>
-
-        <!-- Chat box -->
-        <div
-          id="chat"
-          style="
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 8px;
-            margin-bottom: 8px;
-          "
-        ></div>
-
-        <!-- Message input -->
-        <input
-          id="message"
-          type="text"
-          placeholder="Type a message..."
-          style="width: 70%"
-        />
-        <button id="sendMessage">Send</button>
       </div>
     </div>
     <script type="module" src="./src/room.ts"></script>

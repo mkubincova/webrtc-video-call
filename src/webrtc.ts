@@ -20,7 +20,7 @@ export class WebRTCManager {
   private signaling: SignalingClient;
   private localVideo: HTMLVideoElement;
   private remoteVideo: HTMLVideoElement;
-  private onMessage: (author: string, text: string, color?: string) => void;
+  private onMessage: (text: string, color?: string) => void;
   private remoteStreamConnected = false;
 
   private rtcConfig = {
@@ -34,7 +34,7 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (author: string, text: string, color?: string) => void
+    onMessage: (text: string, color?: string) => void
   ) {
     this.signaling = signaling;
     this.localVideo = localVideo;
@@ -50,14 +50,10 @@ export class WebRTCManager {
       });
       this.localVideo.srcObject = this.localStream;
       this.localVideo.muted = true;
-      this.onMessage(
-        "System",
-        "Camera and microphone access granted",
-        "#00b894"
-      );
+      this.onMessage("Camera and microphone access granted", "#00b894");
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      this.onMessage("System", "Failed to access camera/microphone", "#d63031");
+      this.onMessage("Failed to access camera/microphone", "#d63031");
     }
   }
 
@@ -78,7 +74,7 @@ export class WebRTCManager {
 
       if (!this.remoteStreamConnected) {
         this.remoteStreamConnected = true;
-        this.onMessage("System", "Remote video connected", "#00b894");
+        this.onMessage("Remote video connected", "#00b894");
       }
     };
 
@@ -94,12 +90,12 @@ export class WebRTCManager {
     this.pc.onconnectionstatechange = () => {
       console.log("Connection state:", this.pc!.connectionState);
       if (this.pc!.connectionState === "connected") {
-        this.onMessage("System", "WebRTC connection established", "#00b894");
+        this.onMessage("WebRTC connection established", "#00b894");
       } else if (
         this.pc!.connectionState === "disconnected" ||
         this.pc!.connectionState === "failed"
       ) {
-        this.onMessage("System", "WebRTC connection lost", "#d63031");
+        this.onMessage("WebRTC connection lost", "#d63031");
         this.cleanup();
       }
     };
@@ -115,10 +111,10 @@ export class WebRTCManager {
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
       this.signaling.send("offer", { offer });
-      this.onMessage("System", "Call offer sent", "#6c5ce7");
+      this.onMessage("Call offer sent", "#6c5ce7");
     } catch (error) {
       console.error("Error creating offer:", error);
-      this.onMessage("System", "Failed to create call offer", "#d63031");
+      this.onMessage("Failed to create call offer", "#d63031");
     }
   }
 
@@ -133,10 +129,10 @@ export class WebRTCManager {
       const answer = await this.pc.createAnswer();
       await this.pc.setLocalDescription(answer);
       this.signaling.send("answer", { answer });
-      this.onMessage("System", "Call offer received, answer sent", "#6c5ce7");
+      this.onMessage("Call offer received, answer sent", "#6c5ce7");
     } catch (error) {
       console.error("Error handling offer:", error);
-      this.onMessage("System", "Failed to handle call offer", "#d63031");
+      this.onMessage("Failed to handle call offer", "#d63031");
     }
   }
 
@@ -145,10 +141,10 @@ export class WebRTCManager {
 
     try {
       await this.pc.setRemoteDescription(answer);
-      this.onMessage("System", "Call answer received", "#6c5ce7");
+      this.onMessage("Call answer received", "#6c5ce7");
     } catch (error) {
       console.error("Error handling answer:", error);
-      this.onMessage("System", "Failed to handle call answer", "#d63031");
+      this.onMessage("Failed to handle call answer", "#d63031");
     }
   }
 
@@ -174,7 +170,7 @@ export class WebRTCManager {
     }
 
     this.remoteStreamConnected = false;
-    this.onMessage("System", "Call ended", "#d63031");
+    this.onMessage("Call ended", "#d63031");
   }
 
   cleanup(): void {
