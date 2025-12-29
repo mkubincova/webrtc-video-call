@@ -52,15 +52,16 @@ let signaling: SignalingClient;
 let webrtc: WebRTCManager;
 
 //  💬 Chat Utilities
-function appendUserMessage(author: string, text: string, color = "#333") {
+function appendUserMessage(author: string, text: string, color = "#000") {
   const el = document.createElement("p");
   el.innerHTML = `<strong style="color:${color}">${author}:</strong> ${text}`;
   chatDiv!.appendChild(el);
   chatDiv!.scrollTop = chatDiv!.scrollHeight; // auto-scroll
 }
-function appendSystemMessage(text: string, color = "#333") {
+function appendSystemMessage(text: string, color = "#000") {
   const el = document.createElement("p");
-  el.innerHTML = `<p style="color:${color}">${text}</p>`;
+  el.style.color = color;
+  el.innerHTML = text;
   systemMessagesDiv!.appendChild(el);
   systemMessagesDiv!.scrollTop = systemMessagesDiv!.scrollHeight; // auto-scroll
 }
@@ -68,7 +69,7 @@ function sendMessage() {
   const text = messageInput!.value.trim();
   if (!text) return;
 
-  appendUserMessage("You", text, "#00b894");
+  appendUserMessage("You", text, "#3f7263");
   signaling.send("chat", { username, text, roomId });
 
   messageInput!.value = "";
@@ -103,7 +104,7 @@ signaling.on("open", () => {
 });
 
 signaling.on("close", () => {
-  appendSystemMessage("Disconnected from server", "#d63031");
+  appendSystemMessage("Disconnected from server");
   leaveRoom();
 });
 
@@ -111,7 +112,7 @@ signaling.on("message", (msg) => {
   switch (msg.type) {
     case "room-joined":
       webrtc.startLocalVideo(); // Start local video capture
-      appendSystemMessage(`Welcome to room "${roomId}"`, "#6c5ce7");
+      appendSystemMessage(`Welcome to room "${roomId}"`);
       break;
 
     case "room-full":
@@ -122,17 +123,20 @@ signaling.on("message", (msg) => {
       break;
 
     case "room-ready":
-      appendSystemMessage(msg.payload.message, "#00b894");
+      appendSystemMessage(msg.payload.message);
       break;
 
     case "room-user-count":
-      userCount.textContent = `👥 ${msg.payload.count} user${
+      const icon = msg.payload.count > 1 ? "🟢" : "🟡";
+      const className =
+        msg.payload.count > 1 ? "badge-success" : "badge-warning";
+      userCount.textContent = `${icon} ${msg.payload.count} user${
         msg.payload.count === 1 ? "" : "s"
       }`;
+      userCount.className = `badge ${className}`;
       if (msg.payload.count > 1) {
         startCallBtn.disabled = false;
         sendMessageBtn.disabled = false;
-        // endCallBtn.disabled = true;
       } else {
         startCallBtn.disabled = true;
         sendMessageBtn.disabled = true;
@@ -140,7 +144,7 @@ signaling.on("message", (msg) => {
       break;
 
     case "chat":
-      appendUserMessage(msg.payload.username, msg.payload.text, "#0984e3");
+      appendUserMessage(msg.payload.username, msg.payload.text, "#3c2f55");
       break;
 
     case "offer":
@@ -157,15 +161,14 @@ signaling.on("message", (msg) => {
 
     case "call-started":
       // Enable end call button for the receiver
-      startCallBtn.disabled = true;
-      endCallBtn.disabled = false;
-      appendSystemMessage("Call started", "#00b894");
+      startCallBtn.hidden = true;
+      endCallBtn.hidden = false;
       break;
 
     case "call-ended":
       webrtc.endCall();
-      startCallBtn.disabled = false;
-      endCallBtn.disabled = true;
+      startCallBtn.hidden = false;
+      endCallBtn.hidden = true;
       break;
 
     default:
@@ -193,8 +196,8 @@ leaveRoomBtn.onclick = () => {
 // Video call handlers
 startCallBtn.onclick = () => {
   webrtc.createOffer();
-  startCallBtn.disabled = true;
-  endCallBtn.disabled = false;
+  startCallBtn.hidden = true;
+  endCallBtn.hidden = false;
   // Notify the other participant that call has started
   signaling.send("call-started", { username });
 };
@@ -202,8 +205,8 @@ startCallBtn.onclick = () => {
 endCallBtn.onclick = () => {
   webrtc.endCall();
   signaling.send("call-ended", {});
-  startCallBtn.disabled = false;
-  endCallBtn.disabled = true;
+  startCallBtn.hidden = false;
+  endCallBtn.hidden = true;
 };
 
 window.addEventListener("beforeunload", () => {

@@ -13,10 +13,9 @@
       <div id="status" class="status-sidebar">
         <div class="status-info">
           <h2 id="roomInfo">Not in a room</h2>
-          <p id="userCount">👥 0 users</p>
+          <span id="userCount" class="badge">0 users</span>
         </div>
         <div id="systemMessages" class="system-messages"></div>
-        <!-- Username and room input -->
         <div class="status-actions">
           <button id="leaveRoom" class="leave-btn">Leave Room</button>
         </div>
@@ -48,8 +47,10 @@
               ></video>
             </div>
             <div class="video-controls">
-              <button id="startCall" disabled>📞 Start Call</button>
-              <button id="endCall" disabled>📞 End Call</button>
+              <button id="startCall" class="btn-success" disabled>
+                Start Call
+              </button>
+              <button id="endCall" class="btn-danger" hidden>End Call</button>
             </div>
           </div>
 

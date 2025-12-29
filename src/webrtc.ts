@@ -50,10 +50,10 @@ export class WebRTCManager {
       });
       this.localVideo.srcObject = this.localStream;
       this.localVideo.muted = true;
-      this.onMessage("Camera and microphone access granted", "#00b894");
+      this.onMessage("Camera and microphone access granted", "#364a44");
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      this.onMessage("Failed to access camera/microphone", "#d63031");
+      this.onMessage("Failed to access camera/microphone");
     }
   }
 
@@ -74,7 +74,7 @@ export class WebRTCManager {
 
       if (!this.remoteStreamConnected) {
         this.remoteStreamConnected = true;
-        this.onMessage("Remote video connected", "#00b894");
+        this.onMessage("Remote video connected");
       }
     };
 
@@ -90,12 +90,12 @@ export class WebRTCManager {
     this.pc.onconnectionstatechange = () => {
       console.log("Connection state:", this.pc!.connectionState);
       if (this.pc!.connectionState === "connected") {
-        this.onMessage("WebRTC connection established", "#00b894");
+        this.onMessage("WebRTC connection established", "#364a44");
       } else if (
         this.pc!.connectionState === "disconnected" ||
         this.pc!.connectionState === "failed"
       ) {
-        this.onMessage("WebRTC connection lost", "#d63031");
+        this.onMessage("WebRTC connection lost");
         this.cleanup();
       }
     };
@@ -111,10 +111,10 @@ export class WebRTCManager {
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
       this.signaling.send("offer", { offer });
-      this.onMessage("Call offer sent", "#6c5ce7");
+      this.onMessage("Call offer sent");
     } catch (error) {
       console.error("Error creating offer:", error);
-      this.onMessage("Failed to create call offer", "#d63031");
+      this.onMessage("Failed to create call offer");
     }
   }
 
@@ -129,10 +129,10 @@ export class WebRTCManager {
       const answer = await this.pc.createAnswer();
       await this.pc.setLocalDescription(answer);
       this.signaling.send("answer", { answer });
-      this.onMessage("Call offer received, answer sent", "#6c5ce7");
+      this.onMessage("Call offer received, answer sent");
     } catch (error) {
       console.error("Error handling offer:", error);
-      this.onMessage("Failed to handle call offer", "#d63031");
+      this.onMessage("Failed to handle call offer");
     }
   }
 
@@ -141,10 +141,10 @@ export class WebRTCManager {
 
     try {
       await this.pc.setRemoteDescription(answer);
-      this.onMessage("Call answer received", "#6c5ce7");
+      this.onMessage("Call answer received");
     } catch (error) {
       console.error("Error handling answer:", error);
-      this.onMessage("Failed to handle call answer", "#d63031");
+      this.onMessage("Failed to handle call answer");
     }
   }
 
@@ -170,7 +170,7 @@ export class WebRTCManager {
     }
 
     this.remoteStreamConnected = false;
-    this.onMessage("Call ended", "#d63031");
+    this.onMessage("Call ended", "#910c19");
   }
 
   cleanup(): void {
