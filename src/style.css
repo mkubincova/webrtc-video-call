@@ -192,6 +192,51 @@ button {
   flex-direction: column;
   font-family: "Courier New", Courier, monospace;
   font-weight: 600;
+  transition:
+    width 0.3s ease,
+    margin-left 0.3s ease;
+  overflow: hidden;
+}
+
+.status-sidebar.collapsed {
+  width: 0;
+  margin-left: -1px;
+  border-right: none;
+}
+
+.sidebar-toggle-btn {
+  position: fixed;
+  top: var(--spacing-lg);
+  left: calc(300px + var(--spacing-sm));
+  z-index: 10;
+  background-color: var(--color-primary);
+  color: var(--color-secondary);
+  border: none;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  padding: var(--spacing-sm) var(--spacing-xs);
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: left 0.3s ease;
+  min-width: auto;
+  width: auto;
+  line-height: 1;
+}
+
+.sidebar-toggle-btn:hover {
+  opacity: var(--opacity-hover);
+}
+
+.status-sidebar.collapsed ~ .main-content .sidebar-toggle-btn {
+  left: var(--spacing-sm);
+}
+
+.status-sidebar.collapsed ~ .main-content .sidebar-toggle-btn .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
 .badge {

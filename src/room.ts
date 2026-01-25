@@ -37,6 +37,9 @@ const toggleCameraBtn =
   document.querySelector<HTMLButtonElement>("#toggleCamera");
 const leaveRoomBtn = document.querySelector<HTMLButtonElement>("#leaveRoom");
 const messageForm = document.querySelector<HTMLFormElement>("#messageForm");
+const sidebarToggleBtn =
+  document.querySelector<HTMLButtonElement>("#sidebarToggle");
+const sidebar = document.querySelector<HTMLDivElement>("#status");
 
 if (
   !chatDiv ||
@@ -48,7 +51,9 @@ if (
   !startCallBtn ||
   !endCallBtn ||
   !toggleMuteBtn ||
-  !toggleCameraBtn
+  !toggleCameraBtn ||
+  !sidebarToggleBtn ||
+  !sidebar
 ) {
   throw new Error("Required DOM elements not found");
 }
@@ -80,6 +85,34 @@ function sendMessage() {
   messageInput!.value = "";
 }
 
+// 🎛️ Sidebar Management
+function initializeSidebar() {
+  // On small screens, start collapsed. On large screens, start expanded.
+  if (window.innerWidth < 1024) {
+    sidebar!.classList.add("collapsed");
+  } else {
+    sidebar!.classList.remove("collapsed");
+  }
+}
+
+function toggleSidebar() {
+  // Simple toggle logic that works the same on all screen sizes
+  const isCollapsed = sidebar!.classList.contains("collapsed");
+
+  if (isCollapsed) {
+    sidebar!.classList.remove("collapsed");
+  } else {
+    sidebar!.classList.add("collapsed");
+  }
+}
+
+// Handle window resize to maintain proper state
+function handleResize() {
+  initializeSidebar();
+}
+
+window.addEventListener("resize", handleResize);
+
 // 🚪 Room Management
 function leaveRoom() {
   // Clean up WebRTC
@@ -103,6 +136,9 @@ webrtc = new WebRTCManager(
 
 roomInfo.textContent = `Room: ${roomId}`;
 document.title = `Room ${roomId} - Video Call`;
+
+// Initialize sidebar state based on screen size
+initializeSidebar();
 
 signaling.on("open", () => {
   signaling.send("join-room", { username, roomId });
@@ -200,6 +236,10 @@ sendMessageBtn.onclick = (e) => {
 
 leaveRoomBtn.onclick = () => {
   leaveRoom();
+};
+
+sidebarToggleBtn!.onclick = () => {
+  toggleSidebar();
 };
 
 // Video call handlers
