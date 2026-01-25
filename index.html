@@ -25,16 +25,17 @@
   <body>
     <div id="app" class="app homepage">
       <div class="join-container">
-        <span class="icon">🚪</span>
-        <h1>Video Chat Room</h1>
-        <h2>
-          A real-time video calling application built with WebRTC for secure
-          peer-to-peer connections. All communication is ephemeral - messages
-          are only visible to active participants and disappear when the room is
-          empty.
-        </h2>
+        <div class="header">
+          <h1>Video Call</h1>
+          <p class="intro-text">
+            A real-time video calling application built with WebRTC for secure
+            peer-to-peer connections. Messages are only visible to active
+            participants and disappear when the room is empty. Maximum 2 people
+            per room.
+          </p>
+        </div>
 
-        <form id="joinForm" action="/room.html" method="GET">
+        <form id="joinForm" action="/room.html" method="GET" class="join-form">
           <label for="username">Username</label>
           <input
             id="username"
@@ -54,7 +55,6 @@
             required
             minlength="3"
           />
-          <small>Maximum 2 people per room, share carefully :)</small>
 
           <button type="submit">Join Room</button>
         </form>
