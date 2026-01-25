@@ -32,6 +32,9 @@ const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
 const startCallBtn = document.querySelector<HTMLButtonElement>("#startCall");
 const endCallBtn = document.querySelector<HTMLButtonElement>("#endCall");
+const toggleMuteBtn = document.querySelector<HTMLButtonElement>("#toggleMute");
+const toggleCameraBtn =
+  document.querySelector<HTMLButtonElement>("#toggleCamera");
 const leaveRoomBtn = document.querySelector<HTMLButtonElement>("#leaveRoom");
 const messageForm = document.querySelector<HTMLFormElement>("#messageForm");
 
@@ -43,7 +46,9 @@ if (
   !sendMessageBtn ||
   !leaveRoomBtn ||
   !startCallBtn ||
-  !endCallBtn
+  !endCallBtn ||
+  !toggleMuteBtn ||
+  !toggleCameraBtn
 ) {
   throw new Error("Required DOM elements not found");
 }
@@ -93,7 +98,7 @@ webrtc = new WebRTCManager(
   signaling,
   localVideo,
   remoteVideo,
-  appendSystemMessage
+  appendSystemMessage,
 );
 
 roomInfo.textContent = `Room: ${roomId}`;
@@ -111,13 +116,17 @@ signaling.on("close", () => {
 signaling.on("message", (msg) => {
   switch (msg.type) {
     case "room-joined":
-      webrtc.startLocalVideo(); // Start local video capture
+      webrtc.startLocalVideo().then(() => {
+        // Initialize button states after video starts
+        updateMuteButton(webrtc.isMicrophoneMuted());
+        updateCameraButton(webrtc.isCameraOff());
+      }); // Start local video capture
       appendSystemMessage(`Welcome to room "${roomId}"`);
       break;
 
     case "room-full":
       alert(
-        `Room "${roomId}" is full! Maximum ${msg.payload.maxSize} users allowed.`
+        `Room "${roomId}" is full! Maximum ${msg.payload.maxSize} users allowed.`,
       );
       leaveRoom();
       break;
@@ -207,6 +216,29 @@ endCallBtn.onclick = () => {
   signaling.send("call-ended", {});
   startCallBtn.hidden = false;
   endCallBtn.hidden = true;
+};
+
+// Media control handlers
+function updateMuteButton(isMuted: boolean) {
+  toggleMuteBtn!.textContent = isMuted ? "🔇 Muted" : "🎤 Unmuted";
+  toggleMuteBtn!.className = isMuted ? "btn-control muted" : "btn-control";
+}
+
+function updateCameraButton(isCameraOff: boolean) {
+  toggleCameraBtn!.textContent = isCameraOff ? "📹 Camera Off" : "📹 Camera On";
+  toggleCameraBtn!.className = isCameraOff
+    ? "btn-control camera-off"
+    : "btn-control";
+}
+
+toggleMuteBtn!.onclick = () => {
+  const isMuted = webrtc.toggleMicrophone();
+  updateMuteButton(isMuted);
+};
+
+toggleCameraBtn!.onclick = () => {
+  const isCameraOff = webrtc.toggleCamera();
+  updateCameraButton(isCameraOff);
 };
 
 window.addEventListener("beforeunload", () => {

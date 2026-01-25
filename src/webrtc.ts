@@ -34,7 +34,7 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (text: string, color?: string) => void
+    onMessage: (text: string, color?: string) => void,
   ) {
     this.signaling = signaling;
     this.localVideo = localVideo;
@@ -194,5 +194,47 @@ export class WebRTCManager {
 
     // Reset remote stream flag
     this.remoteStreamConnected = false;
+  }
+
+  toggleMicrophone(): boolean {
+    if (!this.localStream) return false;
+
+    const audioTrack = this.localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+      this.onMessage(
+        audioTrack.enabled ? "Microphone unmuted" : "Microphone muted",
+        audioTrack.enabled ? "#364a44" : "#910c19",
+      );
+      return !audioTrack.enabled; // Return true if muted
+    }
+    return false;
+  }
+
+  toggleCamera(): boolean {
+    if (!this.localStream) return false;
+
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+      this.onMessage(
+        videoTrack.enabled ? "Camera turned on" : "Camera turned off",
+        videoTrack.enabled ? "#364a44" : "#63421c",
+      );
+      return !videoTrack.enabled; // Return true if camera is off
+    }
+    return false;
+  }
+
+  isMicrophoneMuted(): boolean {
+    if (!this.localStream) return false;
+    const audioTrack = this.localStream.getAudioTracks()[0];
+    return audioTrack ? !audioTrack.enabled : false;
+  }
+
+  isCameraOff(): boolean {
+    if (!this.localStream) return false;
+    const videoTrack = this.localStream.getVideoTracks()[0];
+    return videoTrack ? !videoTrack.enabled : false;
   }
 }

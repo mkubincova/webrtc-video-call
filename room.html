@@ -38,12 +38,6 @@
       </div>
 
       <div id="content" class="main-content">
-        <h1>WebRTC Chat and Video Call</h1>
-        <h2 class="subtitle">
-          Once the other user joins the room, you'll be able to call and chat
-          with them. The messages are only visible to people currently in the
-          room and will disapper once both of you leave.
-        </h2>
         <div class="content-layout">
           <div class="video-section">
             <!-- Video elements -->
@@ -63,6 +57,20 @@
               ></video>
             </div>
             <div class="video-controls">
+              <button
+                id="toggleMute"
+                class="btn-control"
+                title="Toggle microphone"
+              >
+                🎤 Unmuted
+              </button>
+              <button
+                id="toggleCamera"
+                class="btn-control"
+                title="Toggle camera"
+              >
+                📹 Camera On
+              </button>
               <button id="startCall" class="btn-success" disabled>
                 Start Call
               </button>
