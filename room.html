@@ -26,15 +26,8 @@
   <body>
     <div id="app" class="app">
       <!-- Connection status -->
-      <div id="status" class="status-sidebar">
-        <div class="status-info">
-          <h2 id="roomInfo">Not in a room</h2>
-          <span id="userCount" class="badge">0 users</span>
-        </div>
+      <div id="status" class="status-sidebar" style="display: none">
         <div id="systemMessages" class="system-messages"></div>
-        <div class="status-actions">
-          <button id="leaveRoom" class="leave-btn">Leave Room</button>
-        </div>
       </div>
 
       <div id="content" class="main-content">
@@ -46,9 +39,19 @@
           <span class="toggle-icon">◀</span>
         </button>
         <div class="content-layout">
+          <button
+            id="leaveRoom"
+            class="button button-sm button-danger leave-button"
+          >
+            Leave Room
+          </button>
           <div class="video-section">
             <!-- Video elements -->
             <div id="videos" class="videos-container">
+              <div class="status-info">
+                <span id="roomInfo">Not in a room</span>
+                <span id="userCount" class="badge">0 users</span>
+              </div>
               <video
                 id="localVideo"
                 autoplay
@@ -66,33 +69,42 @@
             <div class="video-controls">
               <button
                 id="toggleMute"
-                class="btn-control"
+                class="button-icon"
                 title="Toggle microphone"
               >
-                🎤 Unmuted
+                <span class="icon">🎤</span>
+                <span class="text">Unmuted</span>
+              </button>
+              <button
+                id="startCall"
+                class="button-icon button-success"
+                disabled
+              >
+                <span class="icon">📞</span>
+                <span class="text">Start Call</span>
+              </button>
+              <button id="endCall" class="button-icon button-danger" hidden>
+                <span class="icon">📞</span>
+                <span class="text">End Call</span>
               </button>
               <button
                 id="toggleCamera"
-                class="btn-control"
+                class="button-icon"
                 title="Toggle camera"
               >
-                📹 Camera On
+                <span class="icon">📹</span>
+                <span class="text">Camera On</span>
               </button>
-              <button id="startCall" class="btn-success" disabled>
-                Start Call
-              </button>
-              <button id="endCall" class="btn-danger" hidden>End Call</button>
             </div>
           </div>
 
           <div class="chat-section">
-            <!-- Chat box -->
             <div id="chat" class="chat-messages"></div>
-
-            <!-- Message input -->
             <form id="messageForm" class="message-form">
               <input id="message" type="text" placeholder="Type a message..." />
-              <button id="sendMessage" type="submit" disabled>Send</button>
+              <button id="sendMessage" type="submit" class="button" disabled>
+                Send
+              </button>
             </form>
           </div>
         </div>

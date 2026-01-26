@@ -1,0 +1,201 @@
+/* Room/Video Call Styles */
+
+/* Sidebar */
+.status-sidebar {
+  flex-shrink: 0;
+  width: 200px;
+  height: 100vh;
+  background-color: var(--color-disabled-bg);
+  border-right: 1px solid var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 600;
+  transition:
+    width 0.3s ease,
+    margin-left 0.3s ease;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.status-sidebar.collapsed {
+  width: 0;
+  margin-left: -1px;
+  border-right: none;
+}
+
+.sidebar-toggle-btn {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  z-index: 10;
+  background-color: rgb(18, 137, 206);
+  color: white;
+  border: none;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: left 0.3s ease;
+  min-width: auto;
+  width: auto;
+  line-height: 1;
+}
+
+/* Hide toggle button on large screens */
+@media (min-width: 1024px) {
+  .sidebar-toggle-btn {
+    display: none;
+  }
+}
+
+/* On small screens, adjust toggle button position */
+@media (max-width: 1023px) {
+  .sidebar-toggle-btn {
+    left: 0;
+  }
+
+  .status-sidebar:not(.collapsed) ~ .main-content .sidebar-toggle-btn {
+    left: 200px;
+  }
+}
+
+.status-sidebar.collapsed ~ .main-content .sidebar-toggle-btn .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.status-info {
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  right: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.system-messages {
+  padding: 15px;
+  flex-grow: 1;
+  overflow: auto;
+
+  & p {
+    margin: 0;
+    font-size: 0.8rem;
+  }
+
+  & p::after {
+    content: "---";
+    display: block;
+    text-align: center;
+    margin: 8px 0;
+    color: var(--color-disabled-text);
+  }
+}
+
+.leave-button {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+
+/* Main Content */
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.subtitle {
+  color: var(--color-text-muted);
+  margin-top: -10px;
+  margin-bottom: var(--spacing-xl);
+  font-size: large;
+  font-weight: 400;
+  width: 72ch;
+}
+
+.content-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  flex-grow: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Video Section */
+.videos-container {
+  position: relative;
+}
+
+.local-video {
+  width: 20%;
+  max-width: 150px;
+  aspect-ratio: 1 / 1.2;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--border-radius);
+  background: var(--color-video-bg);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.remote-video {
+  width: 100%;
+  height: 50vh;
+  background: var(--color-video-bg);
+}
+
+.video-controls {
+  margin: 8px auto;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+
+  & > * {
+    width: 70px;
+  }
+}
+
+/* Chat Section */
+.chat-section {
+  /* width: 300px; */
+  flex-grow: 1;
+  border-top: 1px solid var(--color-primary);
+  background-color: var(--color-secondary);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.chat-messages {
+  overflow-y: auto;
+  flex-grow: 1;
+  min-height: 0;
+  max-height: 100%;
+  padding-right: 5px; /* Space for scrollbar */
+
+  & p {
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+}
+
+.message-form {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-shrink: 0; /* Don't shrink the form */
+}

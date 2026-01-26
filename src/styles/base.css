@@ -1,0 +1,43 @@
+/* Base Styles - Global elements */
+html {
+  font-family: Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+label {
+  display: block;
+  margin: 0 0 4px 2px;
+  font-weight: bold;
+}
+
+input[type="text"] {
+  width: 100%;
+  font-size: 1rem;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-primary);
+  box-sizing: border-box;
+  border-radius: var(--border-radius-sm);
+}
+
+input[type="text"] ~ label {
+  margin-top: var(--spacing-lg);
+}
+
+.app {
+  display: flex;
+  height: 100vh;
+
+  &.homepage {
+    justify-content: center;
+    align-items: center;
+  }
+}

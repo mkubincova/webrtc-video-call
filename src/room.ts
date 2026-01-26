@@ -87,18 +87,36 @@ function sendMessage() {
 
 // 🎛️ Sidebar Management
 function initializeSidebar() {
-  // On small screens, start collapsed. On large screens, start expanded.
-  if (window.innerWidth < 1024) {
-    sidebar!.classList.add("collapsed");
-  } else {
+  // Remove the inline display: none style first
+  sidebar!.style.display = "";
+
+  // On large screens (≥1024px): always visible, no toggle needed
+  // On small screens (<1024px): hidden by default, toggle available
+  if (window.innerWidth >= 1024) {
+    // Large screens: always show sidebar, no collapsed class needed
     sidebar!.classList.remove("collapsed");
+  } else {
+    // Small screens: start hidden (collapsed)
+    sidebar!.classList.add("collapsed");
   }
 }
 
-function toggleSidebar() {
-  // Simple toggle logic that works the same on all screen sizes
-  const isCollapsed = sidebar!.classList.contains("collapsed");
+function initializeCallButtons() {
+  // Ensure only start call button is visible initially
+  startCallBtn!.hidden = false;
+  endCallBtn!.hidden = true;
+  startCallBtn!.disabled = true; // Will be enabled when room is ready
+}
 
+function toggleSidebar() {
+  // Only works on small screens (<1024px)
+  if (window.innerWidth >= 1024) {
+    // On large screens, sidebar is always visible - no toggle needed
+    return;
+  }
+
+  // Small screens: toggle collapsed state
+  const isCollapsed = sidebar!.classList.contains("collapsed");
   if (isCollapsed) {
     sidebar!.classList.remove("collapsed");
   } else {
@@ -139,6 +157,9 @@ document.title = `Room ${roomId} - Video Call`;
 
 // Initialize sidebar state based on screen size
 initializeSidebar();
+
+// Initialize call button states
+initializeCallButtons();
 
 signaling.on("open", () => {
   signaling.send("join-room", { username, roomId });
@@ -260,15 +281,17 @@ endCallBtn.onclick = () => {
 
 // Media control handlers
 function updateMuteButton(isMuted: boolean) {
-  toggleMuteBtn!.textContent = isMuted ? "🔇 Muted" : "🎤 Unmuted";
-  toggleMuteBtn!.className = isMuted ? "btn-control muted" : "btn-control";
+  const textSpan = toggleMuteBtn!.querySelector(".text");
+  if (textSpan) {
+    textSpan.textContent = isMuted ? "Muted" : "Unmuted";
+  }
 }
 
 function updateCameraButton(isCameraOff: boolean) {
-  toggleCameraBtn!.textContent = isCameraOff ? "📹 Camera Off" : "📹 Camera On";
-  toggleCameraBtn!.className = isCameraOff
-    ? "btn-control camera-off"
-    : "btn-control";
+  const textSpan = toggleCameraBtn!.querySelector(".text");
+  if (textSpan) {
+    textSpan.textContent = isCameraOff ? "Camera Off" : "Camera On";
+  }
 }
 
 toggleMuteBtn!.onclick = () => {
