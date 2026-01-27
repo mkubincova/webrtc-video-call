@@ -48,6 +48,10 @@
     padding: 10px;
     border-radius: 50%;
   }
+
+  & .text {
+    font-size: 0.7rem;
+  }
 }
 
 /* Ensure hidden attribute works with button-icon */

@@ -1,8 +1,11 @@
 /* Room/Video Call Styles */
 
-/* Sidebar */
+/* Sidebar - Always Fixed Position */
 .status-sidebar {
-  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
   width: 200px;
   height: 100vh;
   background-color: var(--color-disabled-bg);
@@ -11,24 +14,20 @@
   flex-direction: column;
   font-family: "Courier New", Courier, monospace;
   font-weight: 600;
-  transition:
-    width 0.3s ease,
-    margin-left 0.3s ease;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
   overflow: hidden;
-  z-index: 100;
 }
 
 .status-sidebar.collapsed {
-  width: 0;
-  margin-left: -1px;
-  border-right: none;
+  transform: translateX(-100%);
 }
 
 .sidebar-toggle-btn {
   position: fixed;
   top: 50px;
   left: 0;
-  z-index: 10;
+  z-index: 1001;
   background-color: rgb(18, 137, 206);
   color: white;
   border: none;
@@ -42,22 +41,8 @@
   line-height: 1;
 }
 
-/* Hide toggle button on large screens */
-@media (min-width: 1024px) {
-  .sidebar-toggle-btn {
-    display: none;
-  }
-}
-
-/* On small screens, adjust toggle button position */
-@media (max-width: 1023px) {
-  .sidebar-toggle-btn {
-    left: 0;
-  }
-
-  .status-sidebar:not(.collapsed) ~ .main-content .sidebar-toggle-btn {
-    left: 200px;
-  }
+.status-sidebar:not(.collapsed) ~ .main-content .sidebar-toggle-btn {
+  left: 200px;
 }
 
 .status-sidebar.collapsed ~ .main-content .sidebar-toggle-btn .toggle-icon {
@@ -132,6 +117,7 @@
   flex-grow: 1;
   overflow: hidden;
   min-height: 0;
+  position: relative;
 }
 
 /* Video Section */
@@ -170,9 +156,7 @@
 
 /* Chat Section */
 .chat-section {
-  /* width: 300px; */
   flex-grow: 1;
-  border-top: 1px solid var(--color-primary);
   background-color: var(--color-secondary);
   padding: 15px;
   display: flex;
@@ -198,4 +182,40 @@
   display: flex;
   gap: var(--spacing-xs);
   flex-shrink: 0; /* Don't shrink the form */
+}
+
+/* Desktop styles (1024px and up) */
+@media (min-width: 1024px) {
+  .main-content {
+    margin-left: 200px;
+    transition: padding-left 0.3s ease;
+  }
+
+  .status-sidebar.collapsed ~ .main-content {
+    padding-left: 0;
+  }
+
+  .sidebar-toggle-btn {
+    display: none;
+  }
+
+  .content-layout {
+    flex-direction: row;
+    gap: 0;
+  }
+
+  .chat-section {
+    width: 300px;
+    flex-grow: 0;
+  }
+
+  .video-section {
+    flex-grow: 1;
+  }
+
+  .remote-video {
+    aspect-ratio: 4/3;
+    height: auto;
+    max-height: 80vh;
+  }
 }
