@@ -1,10 +1,24 @@
-/* Reusable Components */
+/* Reusable Classes & Components */
+
+/* Typography */
+.text-success {
+  color: #0cd901;
+}
+
+.text-danger {
+  color: rgb(255, 0, 0);
+}
+
+.text-info {
+  color: rgb(0, 191, 255);
+}
 
 /* Buttons */
 .button {
-  padding: var(--spacing-md) 16px;
-  background-color: var(--color-primary);
-  color: var(--color-secondary);
+  padding: 0 16px;
+  height: 36px;
+  background-color: #000;
+  color: #fff;
   border: none;
   border-radius: var(--border-radius-sm);
   cursor: pointer;
@@ -13,7 +27,7 @@
   letter-spacing: 0.05em;
 
   &:hover {
-    opacity: var(--opacity-hover);
+    opacity: 0.8;
   }
 
   &:disabled {
@@ -24,12 +38,13 @@
 }
 
 .button.button-danger {
-  background-color: #dd3d3d;
+  background-color: red;
 }
 
 .button-sm {
-  padding: 5px 8px;
-  font-size: 0.6rem;
+  padding: 0 8px;
+  height: 26px;
+  font-size: 0.7rem;
   font-weight: normal;
 }
 
@@ -40,6 +55,7 @@
   gap: 8px;
   border: none;
   background: transparent;
+  cursor: pointer;
 
   & .icon {
     aspect-ratio: 1;
@@ -54,20 +70,20 @@
   }
 }
 
-/* Ensure hidden attribute works with button-icon */
+/* Ensure hidden attribute works with button-icon (flex issues) */
 .button-icon[hidden] {
   display: none !important;
 }
 
 .button-icon.button-danger {
   & .icon {
-    background: #dd3d3d;
+    background: red;
   }
 }
 
 .button-icon.button-success {
   & .icon {
-    background: #52ce67;
+    background: #0cd901;
   }
 }
 
@@ -78,15 +94,60 @@
   padding: 3px 8px;
   font-size: 0.8rem;
   font-weight: normal;
+  color: #fff;
   border-radius: var(--border-radius-sm);
 }
 
 .badge-success {
   background-color: var(--color-success-dark);
-  color: var(--color-secondary);
 }
 
 .badge-warning {
   background-color: var(--color-warning-dark);
-  color: var(--color-secondary);
+}
+
+/* Sidebar  */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 300px;
+  height: 100vh;
+  border-right: 1px solid #fff;
+  display: flex;
+  font-family: monospace, "Lucida Console", "Courier New", Consolas;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+  background: #000;
+  color: #fff;
+}
+
+.sidebar.collapsed {
+  transform: translateX(-100%);
+}
+.sidebar-content {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 50px;
+  left: 100%;
+  z-index: 1001;
+  background-color: white;
+  border: none;
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  padding: 8px;
+  font-size: 1.3rem;
+  line-height: 1;
+  transition: left 0.3s ease;
+}
+
+/* Desktop styles (1024px and up) */
+@media (min-width: 1024px) {
+  .sidebar-toggle-btn {
+    display: none;
+  }
 }

@@ -1,8 +1,6 @@
 /* Base Styles - Global elements */
 html {
   font-family: Arial, sans-serif;
-  background-color: var(--color-background);
-  color: var(--color-primary);
   height: 100%;
   overflow: hidden;
 }
@@ -22,14 +20,15 @@ label {
 input[type="text"] {
   width: 100%;
   font-size: 1rem;
-  padding: var(--spacing-sm);
-  border: 1px solid var(--color-primary);
+  padding: 0 8px;
+  height: 36px;
+  border: 1px solid #000;
   box-sizing: border-box;
   border-radius: var(--border-radius-sm);
 }
 
 input[type="text"] ~ label {
-  margin-top: var(--spacing-lg);
+  margin-top: 20px;
 }
 
 .app {
@@ -39,5 +38,6 @@ input[type="text"] ~ label {
   &.homepage {
     justify-content: center;
     align-items: center;
+    background-color: var(--color-background);
   }
 }

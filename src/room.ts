@@ -68,9 +68,14 @@ function appendUserMessage(author: string, text: string, color = "#000") {
   chatDiv!.appendChild(el);
   chatDiv!.scrollTop = chatDiv!.scrollHeight; // auto-scroll
 }
-function appendSystemMessage(text: string, color = "#000") {
+function appendSystemMessage(
+  text: string,
+  type: "default" | "danger" | "info" = "default",
+) {
   const el = document.createElement("p");
-  el.style.color = color;
+  if (type !== "default") {
+    el.classList.add(`text-${type}`);
+  }
   el.innerHTML = text;
   systemMessagesDiv!.appendChild(el);
   systemMessagesDiv!.scrollTop = systemMessagesDiv!.scrollHeight; // auto-scroll
@@ -79,7 +84,7 @@ function sendMessage() {
   const text = messageInput!.value.trim();
   if (!text) return;
 
-  appendUserMessage("You", text, "#3f7263");
+  appendUserMessage("You", text, "#000");
   signaling.send("chat", { username, text, roomId });
 
   messageInput!.value = "";

@@ -20,7 +20,10 @@ export class WebRTCManager {
   private signaling: SignalingClient;
   private localVideo: HTMLVideoElement;
   private remoteVideo: HTMLVideoElement;
-  private onMessage: (text: string, color?: string) => void;
+  private onMessage: (
+    text: string,
+    type?: "default" | "danger" | "info",
+  ) => void;
   private remoteStreamConnected = false;
 
   private rtcConfig = {
@@ -34,7 +37,7 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (text: string, color?: string) => void,
+    onMessage: (text: string, type?: "default" | "danger" | "info") => void,
   ) {
     this.signaling = signaling;
     this.localVideo = localVideo;
@@ -50,10 +53,10 @@ export class WebRTCManager {
       });
       this.localVideo.srcObject = this.localStream;
       this.localVideo.muted = true;
-      this.onMessage("Camera and microphone access granted", "#364a44");
+      this.onMessage("Camera and microphone access granted", "info");
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      this.onMessage("Failed to access camera/microphone");
+      this.onMessage("Failed to access camera/microphone", "danger");
     }
   }
 
@@ -90,12 +93,12 @@ export class WebRTCManager {
     this.pc.onconnectionstatechange = () => {
       console.log("Connection state:", this.pc!.connectionState);
       if (this.pc!.connectionState === "connected") {
-        this.onMessage("WebRTC connection established", "#364a44");
+        this.onMessage("WebRTC connection established", "info");
       } else if (
         this.pc!.connectionState === "disconnected" ||
         this.pc!.connectionState === "failed"
       ) {
-        this.onMessage("WebRTC connection lost");
+        this.onMessage("WebRTC connection lost", "danger");
         this.cleanup();
       }
     };
@@ -170,7 +173,7 @@ export class WebRTCManager {
     }
 
     this.remoteStreamConnected = false;
-    this.onMessage("Call ended", "#910c19");
+    this.onMessage("Call ended", "danger");
   }
 
   cleanup(): void {
@@ -204,7 +207,7 @@ export class WebRTCManager {
       audioTrack.enabled = !audioTrack.enabled;
       this.onMessage(
         audioTrack.enabled ? "Microphone unmuted" : "Microphone muted",
-        audioTrack.enabled ? "#364a44" : "#910c19",
+        audioTrack.enabled ? "info" : "danger",
       );
       return !audioTrack.enabled; // Return true if muted
     }
@@ -219,7 +222,7 @@ export class WebRTCManager {
       videoTrack.enabled = !videoTrack.enabled;
       this.onMessage(
         videoTrack.enabled ? "Camera turned on" : "Camera turned off",
-        videoTrack.enabled ? "#364a44" : "#63421c",
+        videoTrack.enabled ? "info" : "danger",
       );
       return !videoTrack.enabled; // Return true if camera is off
     }

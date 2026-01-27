@@ -1,87 +1,10 @@
 /* Room/Video Call Styles */
 
-/* Sidebar - Always Fixed Position */
-.status-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  width: 200px;
-  height: 100vh;
-  background-color: var(--color-disabled-bg);
-  border-right: 1px solid var(--color-primary);
-  display: flex;
-  flex-direction: column;
-  font-family: "Courier New", Courier, monospace;
-  font-weight: 600;
-  transform: translateX(0);
-  transition: transform 0.3s ease;
-  overflow: hidden;
-}
-
-.status-sidebar.collapsed {
-  transform: translateX(-100%);
-}
-
-.sidebar-toggle-btn {
-  position: fixed;
-  top: 50px;
-  left: 0;
-  z-index: 1001;
-  background-color: rgb(18, 137, 206);
-  color: white;
-  border: none;
-  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
-  padding: 10px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  transition: left 0.3s ease;
-  min-width: auto;
-  width: auto;
-  line-height: 1;
-}
-
-.status-sidebar:not(.collapsed) ~ .main-content .sidebar-toggle-btn {
-  left: 200px;
-}
-
-.status-sidebar.collapsed ~ .main-content .sidebar-toggle-btn .toggle-icon {
-  transform: rotate(180deg);
-}
-
-.toggle-icon {
-  display: inline-block;
-  transition: transform 0.3s ease;
-}
-
-.status-info {
-  position: absolute;
-  bottom: 15px;
-  left: 10px;
-  right: 10px;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .system-messages {
-  padding: 15px;
+  padding: 25px;
   flex-grow: 1;
   overflow: auto;
-
-  & p {
-    margin: 0;
-    font-size: 0.8rem;
-  }
-
-  & p::after {
-    content: "---";
-    display: block;
-    text-align: center;
-    margin: 8px 0;
-    color: var(--color-disabled-text);
-  }
+  font-size: 0.7rem;
 }
 
 .leave-button {
@@ -100,13 +23,15 @@
   min-height: 0;
 }
 
-.subtitle {
-  color: var(--color-text-muted);
-  margin-top: -10px;
-  margin-bottom: var(--spacing-xl);
-  font-size: large;
-  font-weight: 400;
-  width: 72ch;
+.status-info {
+  position: absolute;
+  bottom: 15px;
+  left: 10px;
+  right: 10px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .content-layout {
@@ -129,7 +54,7 @@
   width: 20%;
   max-width: 150px;
   aspect-ratio: 1 / 1.2;
-  border: 1px solid var(--color-secondary);
+  border: 1px solid #fff;
   border-radius: var(--border-radius);
   background: var(--color-video-bg);
   position: absolute;
@@ -157,12 +82,12 @@
 /* Chat Section */
 .chat-section {
   flex-grow: 1;
-  background-color: var(--color-secondary);
   padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   min-height: 0;
+  background-color: var(--color-background);
 }
 
 .chat-messages {
@@ -180,42 +105,53 @@
 
 .message-form {
   display: flex;
-  gap: var(--spacing-xs);
-  flex-shrink: 0; /* Don't shrink the form */
+  gap: 5px;
+  flex-shrink: 0;
 }
 
 /* Desktop styles (1024px and up) */
 @media (min-width: 1024px) {
   .main-content {
-    margin-left: 200px;
+    margin-left: 300px;
     transition: padding-left 0.3s ease;
   }
 
-  .status-sidebar.collapsed ~ .main-content {
-    padding-left: 0;
-  }
-
-  .sidebar-toggle-btn {
-    display: none;
-  }
-
   .content-layout {
+    padding: 20px;
     flex-direction: row;
-    gap: 0;
+    gap: 20px;
   }
 
   .chat-section {
     width: 300px;
     flex-grow: 0;
+    border-radius: var(--border-radius);
   }
 
   .video-section {
     flex-grow: 1;
   }
 
+  .leave-button {
+    top: 40px;
+    left: 40px;
+  }
+
+  .local-video {
+    top: 20px;
+    right: 20px;
+  }
+
   .remote-video {
     aspect-ratio: 4/3;
     height: auto;
     max-height: 80vh;
+    border-radius: var(--border-radius);
+  }
+
+  .status-info {
+    bottom: 18px;
+    left: 15px;
+    right: 15px;
   }
 }
