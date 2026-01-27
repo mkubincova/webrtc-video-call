@@ -30,6 +30,12 @@ const userCount = document.getElementById("userCount") as HTMLSpanElement;
 const roomInfo = document.getElementById("roomInfo") as HTMLSpanElement;
 const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
 const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
+const localCameraOff = document.getElementById(
+  "localCameraOff",
+) as HTMLDivElement;
+const remoteCameraOff = document.getElementById(
+  "remoteCameraOff",
+) as HTMLDivElement;
 const startCallBtn = document.querySelector<HTMLButtonElement>("#startCall");
 const endCallBtn = document.querySelector<HTMLButtonElement>("#endCall");
 const toggleMuteBtn = document.querySelector<HTMLButtonElement>("#toggleMute");
@@ -53,7 +59,9 @@ if (
   !toggleMuteBtn ||
   !toggleCameraBtn ||
   !sidebarToggleBtn ||
-  !sidebar
+  !sidebar ||
+  !localCameraOff ||
+  !remoteCameraOff
 ) {
   throw new Error("Required DOM elements not found");
 }
@@ -70,7 +78,7 @@ function appendUserMessage(author: string, text: string, color = "#000") {
 }
 function appendSystemMessage(
   text: string,
-  type: "default" | "danger" | "info" = "default",
+  type: "default" | "danger" | "info" | "success" = "default",
 ) {
   const el = document.createElement("p");
   if (type !== "default") {
@@ -155,6 +163,7 @@ webrtc = new WebRTCManager(
   localVideo,
   remoteVideo,
   appendSystemMessage,
+  updateRemoteCameraState, // Pass the remote camera callback
 );
 
 roomInfo.textContent = `Room: ${roomId}`;
@@ -165,6 +174,15 @@ initializeSidebar();
 
 // Initialize call button states
 initializeCallButtons();
+
+// Initialize Lucide icons
+if (typeof (window as any).lucide !== "undefined") {
+  (window as any).lucide.createIcons();
+}
+
+// Ensure camera overlays start hidden
+localCameraOff.classList.add("camera-hidden");
+remoteCameraOff.classList.add("camera-hidden");
 
 signaling.on("open", () => {
   signaling.send("join-room", { username, roomId });
@@ -182,6 +200,8 @@ signaling.on("message", (msg) => {
         // Initialize button states after video starts
         updateMuteButton(webrtc.isMicrophoneMuted());
         updateCameraButton(webrtc.isCameraOff());
+        // Make sure remote camera overlay is hidden initially (no remote stream yet)
+        remoteCameraOff.classList.add("camera-hidden");
       }); // Start local video capture
       appendSystemMessage(`Welcome to room "${roomId}"`);
       break;
@@ -230,6 +250,10 @@ signaling.on("message", (msg) => {
       webrtc.handleIceCandidate(msg.payload.candidate);
       break;
 
+    case "camera-state":
+      webrtc.handleRemoteCameraState(msg.payload.isCameraOff);
+      break;
+
     case "call-started":
       // Enable end call button for the receiver
       startCallBtn.hidden = true;
@@ -240,6 +264,8 @@ signaling.on("message", (msg) => {
       webrtc.endCall();
       startCallBtn.hidden = false;
       endCallBtn.hidden = true;
+      // Clear remote camera overlay when call ends
+      updateRemoteCameraState(false);
       break;
 
     default:
@@ -282,21 +308,79 @@ endCallBtn.onclick = () => {
   signaling.send("call-ended", {});
   startCallBtn.hidden = false;
   endCallBtn.hidden = true;
+  // Clear remote camera overlay when ending call locally
+  updateRemoteCameraState(false);
 };
 
 // Media control handlers
 function updateMuteButton(isMuted: boolean) {
   const textSpan = toggleMuteBtn!.querySelector(".text");
+  const iconSpan = toggleMuteBtn!.querySelector(".icon");
   if (textSpan) {
     textSpan.textContent = isMuted ? "Muted" : "Unmuted";
+  }
+  if (iconSpan) {
+    iconSpan.setAttribute("data-lucide", isMuted ? "mic-off" : "mic");
+    // Refresh the icon
+    if (typeof (window as any).lucide !== "undefined") {
+      (window as any).lucide.createIcons();
+    }
   }
 }
 
 function updateCameraButton(isCameraOff: boolean) {
+  console.log("Camera state:", isCameraOff ? "OFF" : "ON");
   const textSpan = toggleCameraBtn!.querySelector(".text");
+  const iconSpan = toggleCameraBtn!.querySelector(".icon");
   if (textSpan) {
     textSpan.textContent = isCameraOff ? "Camera Off" : "Camera On";
   }
+  if (iconSpan) {
+    iconSpan.setAttribute("data-lucide", isCameraOff ? "video-off" : "video");
+    // Refresh the icon
+    if (typeof (window as any).lucide !== "undefined") {
+      (window as any).lucide.createIcons();
+    }
+  }
+
+  // Show/hide camera off overlay for local video
+  if (isCameraOff) {
+    console.log("Showing camera off overlay");
+    localCameraOff.classList.remove("camera-hidden");
+    if (typeof (window as any).lucide !== "undefined") {
+      (window as any).lucide.createIcons();
+    }
+  } else {
+    console.log("Hiding camera off overlay");
+    localCameraOff.classList.add("camera-hidden");
+  }
+}
+
+function updateRemoteCameraState(isCameraOff: boolean) {
+  console.log("=== UI: updateRemoteCameraState called ===");
+  console.log("Should show overlay:", isCameraOff);
+  console.log(
+    "Current overlay state (has camera-hidden):",
+    remoteCameraOff.classList.contains("camera-hidden"),
+  );
+
+  // Show/hide camera off overlay for remote video
+  if (isCameraOff) {
+    console.log(">>> SHOWING remote camera off overlay");
+    remoteCameraOff.classList.remove("camera-hidden");
+    if (typeof (window as any).lucide !== "undefined") {
+      (window as any).lucide.createIcons();
+    }
+  } else {
+    console.log(">>> HIDING remote camera off overlay");
+    remoteCameraOff.classList.add("camera-hidden");
+  }
+
+  console.log(
+    "Final overlay state (has camera-hidden):",
+    remoteCameraOff.classList.contains("camera-hidden"),
+  );
+  console.log("=== End updateRemoteCameraState ===");
 }
 
 toggleMuteBtn!.onclick = () => {

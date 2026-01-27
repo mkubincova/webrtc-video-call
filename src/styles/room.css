@@ -50,7 +50,21 @@
   position: relative;
 }
 
-.local-video {
+.remote-video-container {
+  height: 50vh;
+  background: var(--color-video-bg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & .camera-off-icon {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.local-video-container {
   width: 20%;
   max-width: 150px;
   aspect-ratio: 1 / 1.2;
@@ -60,12 +74,16 @@
   position: absolute;
   top: 10px;
   right: 10px;
-}
+  z-index: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-.remote-video {
-  width: 100%;
-  height: 50vh;
-  background: var(--color-video-bg);
+  & .camera-off-icon {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .video-controls {
@@ -79,6 +97,24 @@
   }
 }
 
+/* Camera off overlays - Fixed visibility control */
+.camera-off-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.camera-off-overlay.camera-hidden {
+  display: none;
+}
+
+.camera-off-icon {
+  color: #ffffff;
+  opacity: 0.7;
+}
+
 /* Chat Section */
 .chat-section {
   flex-grow: 1;
@@ -88,6 +124,8 @@
   gap: 10px;
   min-height: 0;
   background-color: var(--color-background);
+  border-radius: var(--border-radius);
+  margin: 15px;
 }
 
 .chat-messages {
@@ -125,7 +163,7 @@
   .chat-section {
     width: 300px;
     flex-grow: 0;
-    border-radius: var(--border-radius);
+    margin: 0;
   }
 
   .video-section {
@@ -137,16 +175,26 @@
     left: 40px;
   }
 
-  .local-video {
+  .local-video-container {
     top: 20px;
     right: 20px;
+
+    & .camera-off-icon {
+      width: 45px;
+      height: 45px;
+    }
   }
 
-  .remote-video {
+  .remote-video-container {
     aspect-ratio: 4/3;
     height: auto;
     max-height: 80vh;
     border-radius: var(--border-radius);
+
+    & .camera-off-icon {
+      width: 80px;
+      height: 80px;
+    }
   }
 
   .status-info {

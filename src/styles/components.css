@@ -13,6 +13,10 @@
   color: rgb(0, 191, 255);
 }
 
+.relative {
+  position: relative;
+}
+
 /* Buttons */
 .button {
   padding: 0 16px;
@@ -25,6 +29,9 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 
   &:hover {
     opacity: 0.8;
@@ -46,6 +53,11 @@
   height: 26px;
   font-size: 0.7rem;
   font-weight: normal;
+
+  & svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .button-icon {
@@ -58,11 +70,12 @@
   cursor: pointer;
 
   & .icon {
-    aspect-ratio: 1;
-    font-size: 1.2rem;
-    background: #cdcbcb;
+    background: #000;
     padding: 10px;
     border-radius: 50%;
+    aspect-ratio: 1;
+    overflow: visible;
+    color: #fff;
   }
 
   & .text {
@@ -136,13 +149,13 @@
   top: 50px;
   left: 100%;
   z-index: 1001;
-  background-color: white;
+  background-color: rgb(0, 191, 255);
   border: none;
   border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
   padding: 8px;
   font-size: 1.3rem;
-  line-height: 1;
   transition: left 0.3s ease;
+  line-height: 0;
 }
 
 /* Desktop styles (1024px and up) */

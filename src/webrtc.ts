@@ -22,8 +22,9 @@ export class WebRTCManager {
   private remoteVideo: HTMLVideoElement;
   private onMessage: (
     text: string,
-    type?: "default" | "danger" | "info",
+    type?: "default" | "danger" | "success",
   ) => void;
+  private onRemoteCameraChange?: (isCameraOff: boolean) => void;
   private remoteStreamConnected = false;
 
   private rtcConfig = {
@@ -37,12 +38,14 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (text: string, type?: "default" | "danger" | "info") => void,
+    onMessage: (text: string, type?: "default" | "danger" | "success") => void,
+    onRemoteCameraChange?: (isCameraOff: boolean) => void,
   ) {
     this.signaling = signaling;
     this.localVideo = localVideo;
     this.remoteVideo = remoteVideo;
     this.onMessage = onMessage;
+    this.onRemoteCameraChange = onRemoteCameraChange;
   }
 
   async startLocalVideo(): Promise<void> {
@@ -53,7 +56,7 @@ export class WebRTCManager {
       });
       this.localVideo.srcObject = this.localStream;
       this.localVideo.muted = true;
-      this.onMessage("Camera and microphone access granted", "info");
+      this.onMessage("Camera and microphone access granted", "success");
     } catch (error) {
       console.error("Error accessing media devices:", error);
       this.onMessage("Failed to access camera/microphone", "danger");
@@ -72,7 +75,12 @@ export class WebRTCManager {
 
     // Handle remote stream
     this.pc.ontrack = (event) => {
-      console.log("Received remote track");
+      console.log(
+        "Received remote track:",
+        event.track.kind,
+        "ID:",
+        event.track.id,
+      );
       this.remoteVideo.srcObject = event.streams[0];
 
       if (!this.remoteStreamConnected) {
@@ -93,7 +101,15 @@ export class WebRTCManager {
     this.pc.onconnectionstatechange = () => {
       console.log("Connection state:", this.pc!.connectionState);
       if (this.pc!.connectionState === "connected") {
-        this.onMessage("WebRTC connection established", "info");
+        this.onMessage("WebRTC connection established", "success");
+
+        // Send initial camera state to the remote peer
+        const videoTrack = this.localStream?.getVideoTracks()[0];
+        if (videoTrack) {
+          this.signaling.send("camera-state", {
+            isCameraOff: !videoTrack.enabled,
+          });
+        }
       } else if (
         this.pc!.connectionState === "disconnected" ||
         this.pc!.connectionState === "failed"
@@ -173,6 +189,12 @@ export class WebRTCManager {
     }
 
     this.remoteStreamConnected = false;
+
+    // Clear remote camera overlay when call ends
+    if (this.onRemoteCameraChange) {
+      this.onRemoteCameraChange(false); // Hide overlay (camera is considered "on" when no call)
+    }
+
     this.onMessage("Call ended", "danger");
   }
 
@@ -207,7 +229,7 @@ export class WebRTCManager {
       audioTrack.enabled = !audioTrack.enabled;
       this.onMessage(
         audioTrack.enabled ? "Microphone unmuted" : "Microphone muted",
-        audioTrack.enabled ? "info" : "danger",
+        audioTrack.enabled ? "success" : "danger",
       );
       return !audioTrack.enabled; // Return true if muted
     }
@@ -222,8 +244,14 @@ export class WebRTCManager {
       videoTrack.enabled = !videoTrack.enabled;
       this.onMessage(
         videoTrack.enabled ? "Camera turned on" : "Camera turned off",
-        videoTrack.enabled ? "info" : "danger",
+        videoTrack.enabled ? "success" : "danger",
       );
+
+      // Send camera state to remote peer
+      this.signaling.send("camera-state", {
+        isCameraOff: !videoTrack.enabled,
+      });
+
       return !videoTrack.enabled; // Return true if camera is off
     }
     return false;
@@ -239,5 +267,13 @@ export class WebRTCManager {
     if (!this.localStream) return false;
     const videoTrack = this.localStream.getVideoTracks()[0];
     return videoTrack ? !videoTrack.enabled : false;
+  }
+
+  // Handle remote camera state messages from signaling
+  handleRemoteCameraState(isCameraOff: boolean): void {
+    console.log("=== SIGNALING: Received remote camera state ===");
+    console.log("Remote camera is OFF:", isCameraOff);
+    console.log("Calling onRemoteCameraChange callback with:", isCameraOff);
+    this.onRemoteCameraChange?.(isCameraOff);
   }
 }

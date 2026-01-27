@@ -17,11 +17,10 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
 
-    <!-- Favicon -->
+    <!-- Icons & Styling -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="./src/style.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
   </head>
   <body>
     <div id="app" class="app">
@@ -33,8 +32,7 @@
             class="sidebar-toggle-btn"
             title="Toggle sidebar"
           >
-            <!-- <span class="toggle-icon">◀</span> -->
-            <span class="toggle-icon">🤖</span>
+            <i data-lucide="bot" class="toggle-icon"></i>
           </button>
           <div id="systemMessages" class="system-messages"></div>
         </div>
@@ -46,7 +44,7 @@
             id="leaveRoom"
             class="button button-sm button-danger leave-button"
           >
-            Leave Room
+            <i data-lucide="arrow-left"></i> Exit room
           </button>
           <div class="video-section">
             <!-- Video elements -->
@@ -55,19 +53,35 @@
                 <span id="roomInfo">Not in a room</span>
                 <span id="userCount" class="badge">0 users</span>
               </div>
-              <video
-                id="localVideo"
-                autoplay
-                muted
-                playsinline
-                class="local-video"
-              ></video>
-              <video
-                id="remoteVideo"
-                autoplay
-                playsinline
-                class="remote-video"
-              ></video>
+              <div class="local-video-container">
+                <div
+                  id="localCameraOff"
+                  class="camera-off-overlay camera-hidden"
+                >
+                  <i data-lucide="video-off" class="camera-off-icon"></i>
+                </div>
+                <video
+                  id="localVideo"
+                  autoplay
+                  muted
+                  playsinline
+                  class="local-video"
+                ></video>
+              </div>
+              <div class="remote-video-container">
+                <div
+                  id="remoteCameraOff"
+                  class="camera-off-overlay camera-hidden"
+                >
+                  <i data-lucide="video-off" class="camera-off-icon"></i>
+                </div>
+                <video
+                  id="remoteVideo"
+                  autoplay
+                  playsinline
+                  class="remote-video"
+                ></video>
+              </div>
             </div>
             <div class="video-controls">
               <button
@@ -75,7 +89,7 @@
                 class="button-icon"
                 title="Toggle microphone"
               >
-                <span class="icon">🎤</span>
+                <i data-lucide="mic" class="icon"></i>
                 <span class="text">Unmuted</span>
               </button>
               <button
@@ -83,11 +97,11 @@
                 class="button-icon button-success"
                 disabled
               >
-                <span class="icon">📞</span>
+                <i data-lucide="phone-call" class="icon"></i>
                 <span class="text">Start Call</span>
               </button>
               <button id="endCall" class="button-icon button-danger" hidden>
-                <span class="icon">📞</span>
+                <i data-lucide="phone-missed" class="icon"></i>
                 <span class="text">End Call</span>
               </button>
               <button
@@ -95,7 +109,7 @@
                 class="button-icon"
                 title="Toggle camera"
               >
-                <span class="icon">📹</span>
+                <i data-lucide="video" class="icon"></i>
                 <span class="text">Camera On</span>
               </button>
             </div>
