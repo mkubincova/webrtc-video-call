@@ -14,4 +14,8 @@
   --color-text-muted: rgba(0, 0, 0, 0.6);
   --color-disabled-bg: #eee;
   --color-disabled-text: gray;
+
+  --terminal-info: #00d9ff;
+  --terminal-success: #42b883;
+  --terminal-error: #ff5555;
 }

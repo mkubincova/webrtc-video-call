@@ -30,7 +30,7 @@ const MAX_ROOM_SIZE = 2;
 function broadcastToRoom(
   roomId: string,
   msg: Message,
-  excludeClient?: WebSocket
+  excludeClient?: WebSocket,
 ) {
   const roomClients = rooms.get(roomId);
   if (!roomClients) return;
@@ -58,7 +58,7 @@ function joinRoom(client: Client, roomId: string, username: string) {
       JSON.stringify({
         type: "room-full",
         payload: { roomId, maxSize: MAX_ROOM_SIZE },
-      })
+      }),
     );
     console.log(pc.red(`${username} rejected from room ${roomId} - room full`));
     return;
@@ -76,6 +76,17 @@ function joinRoom(client: Client, roomId: string, username: string) {
   // Notify client they joined
   client.ws.send(JSON.stringify({ type: "room-joined", payload: { roomId } }));
 
+  // Notify other users in the room that someone joined
+  // Exclude the user who just joined
+  broadcastToRoom(
+    roomId,
+    {
+      type: "user-joined",
+      payload: { username },
+    },
+    client.ws,
+  );
+
   // Broadcast user count to room
   const roomSize = rooms.get(roomId)!.size;
   broadcastToRoom(roomId, {
@@ -84,7 +95,7 @@ function joinRoom(client: Client, roomId: string, username: string) {
   });
 
   console.log(
-    pc.green(`${username} joined room ${roomId}. Room size: ${roomSize}`)
+    pc.green(`${username} joined room ${roomId}. Room size: ${roomSize}`),
   );
 }
 
@@ -93,6 +104,19 @@ function leaveRoom(client: Client) {
 
   const roomClients = rooms.get(client.roomId);
   if (roomClients) {
+    // Notify other users in the room that someone left
+    // Exclude the user who is leaving
+    if (client.username) {
+      broadcastToRoom(
+        client.roomId,
+        {
+          type: "user-left",
+          payload: { username: client.username },
+        },
+        client.ws,
+      );
+    }
+
     roomClients.delete(client);
 
     // Broadcast updated user count
@@ -142,7 +166,7 @@ wss.on("connection", (ws) => {
 
 console.log(
   `\n🚀 ${pc.bold("Signaling server running at:")} ${pc.cyan(
-    `ws://${HOST}:${PORT}`
-  )}\n`
+    `ws://${HOST}:${PORT}`,
+  )}\n`,
 );
 console.log("Waiting for clients to connect...");

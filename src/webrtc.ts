@@ -22,7 +22,7 @@ export class WebRTCManager {
   private remoteVideo: HTMLVideoElement;
   private onMessage: (
     text: string,
-    type?: "default" | "danger" | "success",
+    type?: "default" | "error" | "success" | "info",
   ) => void;
   private onRemoteCameraChange?: (isCameraOff: boolean) => void;
   private remoteStreamConnected = false;
@@ -38,7 +38,10 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (text: string, type?: "default" | "danger" | "success") => void,
+    onMessage: (
+      text: string,
+      type?: "default" | "error" | "success" | "info",
+    ) => void,
     onRemoteCameraChange?: (isCameraOff: boolean) => void,
   ) {
     this.signaling = signaling;
@@ -59,7 +62,7 @@ export class WebRTCManager {
       this.onMessage("Camera and microphone access granted", "success");
     } catch (error) {
       console.error("Error accessing media devices:", error);
-      this.onMessage("Failed to access camera/microphone", "danger");
+      this.onMessage("Failed to access camera/microphone", "error");
     }
   }
 
@@ -85,7 +88,7 @@ export class WebRTCManager {
 
       if (!this.remoteStreamConnected) {
         this.remoteStreamConnected = true;
-        this.onMessage("Remote video connected");
+        this.onMessage("Remote video connected", "info");
       }
     };
 
@@ -114,7 +117,7 @@ export class WebRTCManager {
         this.pc!.connectionState === "disconnected" ||
         this.pc!.connectionState === "failed"
       ) {
-        this.onMessage("WebRTC connection lost", "danger");
+        this.onMessage("WebRTC connection lost", "error");
         this.cleanup();
       }
     };
@@ -130,10 +133,10 @@ export class WebRTCManager {
       const offer = await this.pc.createOffer();
       await this.pc.setLocalDescription(offer);
       this.signaling.send("offer", { offer });
-      this.onMessage("Call offer sent");
+      this.onMessage("Call offer sent", "info");
     } catch (error) {
       console.error("Error creating offer:", error);
-      this.onMessage("Failed to create call offer");
+      this.onMessage("Failed to create call offer", "error");
     }
   }
 
@@ -148,10 +151,10 @@ export class WebRTCManager {
       const answer = await this.pc.createAnswer();
       await this.pc.setLocalDescription(answer);
       this.signaling.send("answer", { answer });
-      this.onMessage("Call offer received, answer sent");
+      this.onMessage("Call offer received, answer sent", "info");
     } catch (error) {
       console.error("Error handling offer:", error);
-      this.onMessage("Failed to handle call offer");
+      this.onMessage("Failed to handle call offer", "error");
     }
   }
 
@@ -160,10 +163,10 @@ export class WebRTCManager {
 
     try {
       await this.pc.setRemoteDescription(answer);
-      this.onMessage("Call answer received");
+      this.onMessage("Call answer received", "info");
     } catch (error) {
       console.error("Error handling answer:", error);
-      this.onMessage("Failed to handle call answer");
+      this.onMessage("Failed to handle call answer", "error");
     }
   }
 
@@ -172,7 +175,7 @@ export class WebRTCManager {
 
     try {
       await this.pc.addIceCandidate(candidate);
-      console.log("Added ICE candidate");
+      console.log("Added ICE candidate", "info");
     } catch (error) {
       console.error("Error adding ICE candidate:", error);
     }
@@ -195,7 +198,7 @@ export class WebRTCManager {
       this.onRemoteCameraChange(false); // Hide overlay (camera is considered "on" when no call)
     }
 
-    this.onMessage("Call ended", "danger");
+    this.onMessage("Call ended", "error");
   }
 
   cleanup(): void {
@@ -229,7 +232,6 @@ export class WebRTCManager {
       audioTrack.enabled = !audioTrack.enabled;
       this.onMessage(
         audioTrack.enabled ? "Microphone unmuted" : "Microphone muted",
-        audioTrack.enabled ? "success" : "danger",
       );
       return !audioTrack.enabled; // Return true if muted
     }
@@ -244,7 +246,6 @@ export class WebRTCManager {
       videoTrack.enabled = !videoTrack.enabled;
       this.onMessage(
         videoTrack.enabled ? "Camera turned on" : "Camera turned off",
-        videoTrack.enabled ? "success" : "danger",
       );
 
       // Send camera state to remote peer

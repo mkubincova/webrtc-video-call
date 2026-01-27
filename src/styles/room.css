@@ -5,6 +5,18 @@
   flex-grow: 1;
   overflow: auto;
   font-size: 0.7rem;
+
+  & .text-info {
+    color: var(--terminal-info);
+  }
+
+  & .text-success {
+    color: var(--terminal-success);
+  }
+
+  & .text-error {
+    color: var(--terminal-error);
+  }
 }
 
 .leave-button {
@@ -186,6 +198,7 @@
   }
 
   .remote-video-container {
+    width: 100%;
     aspect-ratio: 4/3;
     height: auto;
     max-height: 80vh;

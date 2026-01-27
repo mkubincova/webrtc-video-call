@@ -78,7 +78,7 @@ function appendUserMessage(author: string, text: string, color = "#000") {
 }
 function appendSystemMessage(
   text: string,
-  type: "default" | "danger" | "info" | "success" = "default",
+  type: "default" | "error" | "info" | "success" = "default",
 ) {
   const el = document.createElement("p");
   if (type !== "default") {
@@ -215,6 +215,20 @@ signaling.on("message", (msg) => {
 
     case "room-ready":
       appendSystemMessage(msg.payload.message);
+      break;
+
+    case "user-joined":
+      appendSystemMessage(
+        `<strong>${msg.payload.username}</strong> joined the room`,
+        "info",
+      );
+      break;
+
+    case "user-left":
+      appendSystemMessage(
+        `<strong>${msg.payload.username}</strong> left the room`,
+        "error",
+      );
       break;
 
     case "room-user-count":

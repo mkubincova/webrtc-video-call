@@ -1,22 +1,5 @@
 /* Reusable Classes & Components */
 
-/* Typography */
-.text-success {
-  color: #0cd901;
-}
-
-.text-danger {
-  color: rgb(255, 0, 0);
-}
-
-.text-info {
-  color: rgb(0, 191, 255);
-}
-
-.relative {
-  position: relative;
-}
-
 /* Buttons */
 .button {
   padding: 0 16px;
