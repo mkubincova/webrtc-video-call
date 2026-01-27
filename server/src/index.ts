@@ -140,7 +140,6 @@ function leaveRoom(client: Client) {
 wss.on("connection", (ws) => {
   const client: Client = { ws };
   clients.set(ws, client);
-  console.log(pc.green(`New client connected. Total: ${clients.size}`));
 
   ws.on("message", (data) => {
     try {
@@ -160,7 +159,6 @@ wss.on("connection", (ws) => {
   ws.on("close", () => {
     leaveRoom(client);
     clients.delete(ws);
-    console.log(pc.yellow(`Client disconnected. Total: ${clients.size}`));
   });
 });
 

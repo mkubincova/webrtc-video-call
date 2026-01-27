@@ -33,6 +33,9 @@
   flex-direction: column;
   overflow: hidden;
   min-height: 0;
+  gap: 10px;
+  align-items: stretch;
+  position: relative;
 }
 
 .status-info {
@@ -44,17 +47,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.content-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: stretch;
-  flex-grow: 1;
-  overflow: hidden;
-  min-height: 0;
-  position: relative;
 }
 
 /* Video Section */
@@ -164,9 +156,6 @@
   .main-content {
     margin-left: 300px;
     transition: padding-left 0.3s ease;
-  }
-
-  .content-layout {
     padding: 20px;
     flex-direction: row;
     gap: 20px;

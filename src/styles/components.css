@@ -52,6 +52,16 @@
   background: transparent;
   cursor: pointer;
 
+  &:hover .icon {
+    opacity: 0.8;
+  }
+
+  &:disabled .icon {
+    background-color: var(--color-disabled-bg) !important;
+    color: var(--color-disabled-text) !important;
+    opacity: 1;
+  }
+
   & .icon {
     background: #000;
     padding: 10px;

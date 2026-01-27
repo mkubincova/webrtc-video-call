@@ -1,8 +1,21 @@
 import { WEBSOCKET_URL } from "./config";
-import { SignalingClient } from "./signaling";
-import { WebRTCManager } from "./webrtc";
+import { SignalingClient } from "./lib/signaling";
+import { WebRTCManager } from "./lib/webrtc";
+import type { MessageType } from "./lib/types";
+import {
+  appendSystemMessage,
+  appendUserMessage,
+  initializeRoomDOMElements,
+  initializeSidebar,
+  toggleSidebar,
+  updateCameraButton,
+  updateMuteButton,
+  updateRemoteCameraState,
+} from "./lib/utils";
 
-// Get URL parameters
+/**
+ * 🔗 Get URL parameters
+ */
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get("username")?.trim();
 const roomId = urlParams.get("roomId")?.trim();
@@ -19,191 +32,94 @@ if (username.length < 2 || roomId.length < 3) {
   throw new Error("Invalid parameters");
 }
 
-// DOM elements
-const chatDiv = document.querySelector<HTMLDivElement>("#chat");
-const systemMessagesDiv =
-  document.querySelector<HTMLDivElement>("#systemMessages");
-const messageInput = document.querySelector<HTMLInputElement>("#message");
-const sendMessageBtn =
-  document.querySelector<HTMLButtonElement>("#sendMessage");
-const userCount = document.getElementById("userCount") as HTMLSpanElement;
-const roomInfo = document.getElementById("roomInfo") as HTMLSpanElement;
-const localVideo = document.getElementById("localVideo") as HTMLVideoElement;
-const remoteVideo = document.getElementById("remoteVideo") as HTMLVideoElement;
-const localCameraOff = document.getElementById(
-  "localCameraOff",
-) as HTMLDivElement;
-const remoteCameraOff = document.getElementById(
-  "remoteCameraOff",
-) as HTMLDivElement;
-const startCallBtn = document.querySelector<HTMLButtonElement>("#startCall");
-const endCallBtn = document.querySelector<HTMLButtonElement>("#endCall");
-const toggleMuteBtn = document.querySelector<HTMLButtonElement>("#toggleMute");
-const toggleCameraBtn =
-  document.querySelector<HTMLButtonElement>("#toggleCamera");
-const leaveRoomBtn = document.querySelector<HTMLButtonElement>("#leaveRoom");
-const messageForm = document.querySelector<HTMLFormElement>("#messageForm");
-const sidebarToggleBtn =
-  document.querySelector<HTMLButtonElement>("#sidebarToggle");
-const sidebar = document.querySelector<HTMLDivElement>("#status");
+/**
+ * 🏠 Initialize DOM elements
+ */
+const { chat, video, room } = initializeRoomDOMElements();
 
-if (
-  !chatDiv ||
-  !messageForm ||
-  !systemMessagesDiv ||
-  !messageInput ||
-  !sendMessageBtn ||
-  !leaveRoomBtn ||
-  !startCallBtn ||
-  !endCallBtn ||
-  !toggleMuteBtn ||
-  !toggleCameraBtn ||
-  !sidebarToggleBtn ||
-  !sidebar ||
-  !localCameraOff ||
-  !remoteCameraOff
-) {
-  throw new Error("Required DOM elements not found");
-}
-
-let signaling: SignalingClient;
-let webrtc: WebRTCManager;
-
-//  💬 Chat Utilities
-function appendUserMessage(author: string, text: string, color = "#000") {
-  const el = document.createElement("p");
-  el.innerHTML = `<strong style="color:${color}">${author}:</strong> ${text}`;
-  chatDiv!.appendChild(el);
-  chatDiv!.scrollTop = chatDiv!.scrollHeight; // auto-scroll
-}
-function appendSystemMessage(
-  text: string,
-  type: "default" | "error" | "info" | "success" = "default",
-) {
-  const el = document.createElement("p");
-  if (type !== "default") {
-    el.classList.add(`text-${type}`);
-  }
-  el.innerHTML = text;
-  systemMessagesDiv!.appendChild(el);
-  systemMessagesDiv!.scrollTop = systemMessagesDiv!.scrollHeight; // auto-scroll
-}
-function sendMessage() {
-  const text = messageInput!.value.trim();
-  if (!text) return;
-
-  appendUserMessage("You", text, "#000");
-  signaling.send("chat", { username, text, roomId });
-
-  messageInput!.value = "";
-}
-
-// 🎛️ Sidebar Management
-function initializeSidebar() {
-  // Remove the inline display: none style first
-  sidebar!.style.display = "";
-
-  // On large screens (≥1024px): always visible, no toggle needed
-  // On small screens (<1024px): hidden by default, toggle available
-  if (window.innerWidth >= 1024) {
-    // Large screens: always show sidebar, no collapsed class needed
-    sidebar!.classList.remove("collapsed");
-  } else {
-    // Small screens: start hidden (collapsed)
-    sidebar!.classList.add("collapsed");
-  }
-}
-
-function initializeCallButtons() {
-  // Ensure only start call button is visible initially
-  startCallBtn!.hidden = false;
-  endCallBtn!.hidden = true;
-  startCallBtn!.disabled = true; // Will be enabled when room is ready
-}
-
-function toggleSidebar() {
-  // Only works on small screens (<1024px)
-  if (window.innerWidth >= 1024) {
-    // On large screens, sidebar is always visible - no toggle needed
-    return;
-  }
-
-  // Small screens: toggle collapsed state
-  const isCollapsed = sidebar!.classList.contains("collapsed");
-  if (isCollapsed) {
-    sidebar!.classList.remove("collapsed");
-  } else {
-    sidebar!.classList.add("collapsed");
-  }
-}
-
-// Handle window resize to maintain proper state
-function handleResize() {
-  initializeSidebar();
-}
-
-window.addEventListener("resize", handleResize);
-
-// 🚪 Room Management
-function leaveRoom() {
-  // Clean up WebRTC
-  webrtc.cleanup();
-
-  // Close signaling connection
-  if (signaling) signaling.send("leave-room", { username, roomId });
-
-  // Redirect to index page
-  window.location.href = "/";
-}
-
-// 🔗 Initialize Room
-signaling = new SignalingClient(WEBSOCKET_URL);
-webrtc = new WebRTCManager(
-  signaling,
-  localVideo,
-  remoteVideo,
-  appendSystemMessage,
-  updateRemoteCameraState, // Pass the remote camera callback
-);
-
-roomInfo.textContent = `Room: ${roomId}`;
+// Text
+room.roomInfo.textContent = `Room: ${roomId}`;
 document.title = `Room ${roomId} - Video Call`;
 
-// Initialize sidebar state based on screen size
-initializeSidebar();
+// Sidebar
+initializeSidebar(room.sidebar);
+window.addEventListener("resize", () => initializeSidebar(room.sidebar));
 
-// Initialize call button states
-initializeCallButtons();
-
-// Initialize Lucide icons
+// Icons
 if (typeof (window as any).lucide !== "undefined") {
   (window as any).lucide.createIcons();
 }
 
-// Ensure camera overlays start hidden
-localCameraOff.classList.add("camera-hidden");
-remoteCameraOff.classList.add("camera-hidden");
+// Buttons
+chat.messageForm.onsubmit = (e) => {
+  e.preventDefault();
+  sendMessage();
+};
+chat.sendMessageBtn.onclick = (e) => {
+  e.preventDefault();
+  sendMessage();
+};
+
+room.leaveRoomBtn.onclick = () => {
+  leaveRoom();
+};
+room.sidebarToggleBtn.onclick = () => {
+  toggleSidebar(room.sidebar);
+};
+
+video.toggleMuteBtn.onclick = () => {
+  const isMuted = webrtc.toggleMicrophone();
+  updateMuteButton(isMuted, video.toggleMuteBtn);
+};
+video.toggleCameraBtn.onclick = () => {
+  const isCameraOff = webrtc.toggleCamera();
+  updateCameraButton(isCameraOff, video.toggleCameraBtn, video.localCameraOff);
+};
+video.startCallBtn.onclick = () => {
+  webrtc.createOffer();
+  video.startCallBtn.hidden = true;
+  video.endCallBtn.hidden = false;
+  signaling.send("call-started", { username });
+};
+video.endCallBtn.onclick = () => {
+  webrtc.endCall();
+  signaling.send("call-ended", {});
+  video.startCallBtn.hidden = false;
+  video.endCallBtn.hidden = true;
+  updateRemoteCameraState(false, video.remoteCameraOff);
+};
+
+/**
+ * 🚦 Signaling
+ */
+let signaling: SignalingClient = new SignalingClient(WEBSOCKET_URL);
+let webrtc: WebRTCManager = new WebRTCManager(
+  signaling,
+  video.localVideo,
+  video.remoteVideo,
+  (text: string, type?: MessageType) =>
+    appendSystemMessage(chat.systemMessagesDiv, text, type),
+  (isCameraOff: boolean) =>
+    updateRemoteCameraState(isCameraOff, video.remoteCameraOff),
+);
 
 signaling.on("open", () => {
   signaling.send("join-room", { username, roomId });
 });
 
 signaling.on("close", () => {
-  appendSystemMessage("Disconnected from server");
+  appendSystemMessage(chat.systemMessagesDiv, "Disconnected from server");
   leaveRoom();
 });
 
 signaling.on("message", (msg) => {
   switch (msg.type) {
     case "room-joined":
-      webrtc.startLocalVideo().then(() => {
-        // Initialize button states after video starts
-        updateMuteButton(webrtc.isMicrophoneMuted());
-        updateCameraButton(webrtc.isCameraOff());
-        // Make sure remote camera overlay is hidden initially (no remote stream yet)
-        remoteCameraOff.classList.add("camera-hidden");
-      }); // Start local video capture
-      appendSystemMessage(`Welcome to room "${roomId}"`);
+      webrtc.startLocalVideo();
+      appendSystemMessage(
+        chat.systemMessagesDiv,
+        `Welcome to room "${roomId}"`,
+      );
       break;
 
     case "room-full":
@@ -214,11 +130,12 @@ signaling.on("message", (msg) => {
       break;
 
     case "room-ready":
-      appendSystemMessage(msg.payload.message);
+      appendSystemMessage(chat.systemMessagesDiv, msg.payload.message);
       break;
 
     case "user-joined":
       appendSystemMessage(
+        chat.systemMessagesDiv,
         `<strong>${msg.payload.username}</strong> joined the room`,
         "info",
       );
@@ -226,6 +143,7 @@ signaling.on("message", (msg) => {
 
     case "user-left":
       appendSystemMessage(
+        chat.systemMessagesDiv,
         `<strong>${msg.payload.username}</strong> left the room`,
         "error",
       );
@@ -235,21 +153,26 @@ signaling.on("message", (msg) => {
       const icon = msg.payload.count > 1 ? "🟢" : "🟡";
       const className =
         msg.payload.count > 1 ? "badge-success" : "badge-warning";
-      userCount.textContent = `${icon} ${msg.payload.count} user${
+      room.userCount.textContent = `${icon} ${msg.payload.count} user${
         msg.payload.count === 1 ? "" : "s"
       }`;
-      userCount.className = `badge ${className}`;
+      room.userCount.className = `badge ${className}`;
       if (msg.payload.count > 1) {
-        startCallBtn.disabled = false;
-        sendMessageBtn.disabled = false;
+        video.startCallBtn.disabled = false;
+        chat.sendMessageBtn.disabled = false;
       } else {
-        startCallBtn.disabled = true;
-        sendMessageBtn.disabled = true;
+        video.startCallBtn.disabled = true;
+        chat.sendMessageBtn.disabled = true;
       }
       break;
 
     case "chat":
-      appendUserMessage(msg.payload.username, msg.payload.text, "#3c2f55");
+      appendUserMessage(
+        chat.chatDiv,
+        msg.payload.username,
+        msg.payload.text,
+        "#3c2f55",
+      );
       break;
 
     case "offer":
@@ -269,17 +192,15 @@ signaling.on("message", (msg) => {
       break;
 
     case "call-started":
-      // Enable end call button for the receiver
-      startCallBtn.hidden = true;
-      endCallBtn.hidden = false;
+      video.startCallBtn.hidden = true;
+      video.endCallBtn.hidden = false;
       break;
 
     case "call-ended":
       webrtc.endCall();
-      startCallBtn.hidden = false;
-      endCallBtn.hidden = true;
-      // Clear remote camera overlay when call ends
-      updateRemoteCameraState(false);
+      video.startCallBtn.hidden = false;
+      video.endCallBtn.hidden = true;
+      updateRemoteCameraState(false, video.remoteCameraOff);
       break;
 
     default:
@@ -287,126 +208,27 @@ signaling.on("message", (msg) => {
   }
 });
 
-// Messaging handlers
-// Handle form submission (Enter key)
-messageForm.onsubmit = (e) => {
-  e.preventDefault();
-  sendMessage();
-};
-
-// Handle button click
-sendMessageBtn.onclick = (e) => {
-  e.preventDefault();
-  sendMessage();
-};
-
-leaveRoomBtn.onclick = () => {
-  leaveRoom();
-};
-
-sidebarToggleBtn!.onclick = () => {
-  toggleSidebar();
-};
-
-// Video call handlers
-startCallBtn.onclick = () => {
-  webrtc.createOffer();
-  startCallBtn.hidden = true;
-  endCallBtn.hidden = false;
-  // Notify the other participant that call has started
-  signaling.send("call-started", { username });
-};
-
-endCallBtn.onclick = () => {
-  webrtc.endCall();
-  signaling.send("call-ended", {});
-  startCallBtn.hidden = false;
-  endCallBtn.hidden = true;
-  // Clear remote camera overlay when ending call locally
-  updateRemoteCameraState(false);
-};
-
-// Media control handlers
-function updateMuteButton(isMuted: boolean) {
-  const textSpan = toggleMuteBtn!.querySelector(".text");
-  const iconSpan = toggleMuteBtn!.querySelector(".icon");
-  if (textSpan) {
-    textSpan.textContent = isMuted ? "Muted" : "Unmuted";
-  }
-  if (iconSpan) {
-    iconSpan.setAttribute("data-lucide", isMuted ? "mic-off" : "mic");
-    // Refresh the icon
-    if (typeof (window as any).lucide !== "undefined") {
-      (window as any).lucide.createIcons();
-    }
-  }
-}
-
-function updateCameraButton(isCameraOff: boolean) {
-  console.log("Camera state:", isCameraOff ? "OFF" : "ON");
-  const textSpan = toggleCameraBtn!.querySelector(".text");
-  const iconSpan = toggleCameraBtn!.querySelector(".icon");
-  if (textSpan) {
-    textSpan.textContent = isCameraOff ? "Camera Off" : "Camera On";
-  }
-  if (iconSpan) {
-    iconSpan.setAttribute("data-lucide", isCameraOff ? "video-off" : "video");
-    // Refresh the icon
-    if (typeof (window as any).lucide !== "undefined") {
-      (window as any).lucide.createIcons();
-    }
-  }
-
-  // Show/hide camera off overlay for local video
-  if (isCameraOff) {
-    console.log("Showing camera off overlay");
-    localCameraOff.classList.remove("camera-hidden");
-    if (typeof (window as any).lucide !== "undefined") {
-      (window as any).lucide.createIcons();
-    }
-  } else {
-    console.log("Hiding camera off overlay");
-    localCameraOff.classList.add("camera-hidden");
-  }
-}
-
-function updateRemoteCameraState(isCameraOff: boolean) {
-  console.log("=== UI: updateRemoteCameraState called ===");
-  console.log("Should show overlay:", isCameraOff);
-  console.log(
-    "Current overlay state (has camera-hidden):",
-    remoteCameraOff.classList.contains("camera-hidden"),
-  );
-
-  // Show/hide camera off overlay for remote video
-  if (isCameraOff) {
-    console.log(">>> SHOWING remote camera off overlay");
-    remoteCameraOff.classList.remove("camera-hidden");
-    if (typeof (window as any).lucide !== "undefined") {
-      (window as any).lucide.createIcons();
-    }
-  } else {
-    console.log(">>> HIDING remote camera off overlay");
-    remoteCameraOff.classList.add("camera-hidden");
-  }
-
-  console.log(
-    "Final overlay state (has camera-hidden):",
-    remoteCameraOff.classList.contains("camera-hidden"),
-  );
-  console.log("=== End updateRemoteCameraState ===");
-}
-
-toggleMuteBtn!.onclick = () => {
-  const isMuted = webrtc.toggleMicrophone();
-  updateMuteButton(isMuted);
-};
-
-toggleCameraBtn!.onclick = () => {
-  const isCameraOff = webrtc.toggleCamera();
-  updateCameraButton(isCameraOff);
-};
-
 window.addEventListener("beforeunload", () => {
   webrtc?.cleanup();
 });
+
+function sendMessage() {
+  const text = chat.messageInput.value.trim();
+  if (!text) return;
+
+  appendUserMessage(chat.chatDiv, "You", text, "#000");
+  signaling.send("chat", { username, text, roomId });
+
+  chat.messageInput.value = "";
+}
+
+function leaveRoom() {
+  // Clean up WebRTC
+  webrtc.cleanup();
+
+  // Close signaling connection
+  if (signaling) signaling.send("leave-room", { username, roomId });
+
+  // Redirect to index page
+  window.location.href = "/";
+}

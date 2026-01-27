@@ -24,8 +24,8 @@
   </head>
   <body>
     <div id="app" class="app">
-      <!-- Connection status -->
-      <div id="status" class="sidebar">
+      <!-- Sidebar -->
+      <div id="sidebar" class="sidebar">
         <div class="sidebar-content">
           <button
             id="sidebarToggle"
@@ -37,94 +37,85 @@
           <div id="systemMessages" class="system-messages"></div>
         </div>
       </div>
+      <!-- /Sidebar -->
 
       <div id="content" class="main-content">
-        <div class="content-layout">
+        <!-- Video -->
+        <div class="video-section">
           <button
             id="leaveRoom"
             class="button button-sm button-danger leave-button"
           >
             <i data-lucide="arrow-left"></i> Exit room
           </button>
-          <div class="video-section">
-            <!-- Video elements -->
-            <div id="videos" class="videos-container">
-              <div class="status-info">
-                <span id="roomInfo">Not in a room</span>
-                <span id="userCount" class="badge">0 users</span>
-              </div>
-              <div class="local-video-container">
-                <div
-                  id="localCameraOff"
-                  class="camera-off-overlay camera-hidden"
-                >
-                  <i data-lucide="video-off" class="camera-off-icon"></i>
-                </div>
-                <video
-                  id="localVideo"
-                  autoplay
-                  muted
-                  playsinline
-                  class="local-video"
-                ></video>
-              </div>
-              <div class="remote-video-container">
-                <div
-                  id="remoteCameraOff"
-                  class="camera-off-overlay camera-hidden"
-                >
-                  <i data-lucide="video-off" class="camera-off-icon"></i>
-                </div>
-                <video
-                  id="remoteVideo"
-                  autoplay
-                  playsinline
-                  class="remote-video"
-                ></video>
-              </div>
+          <div id="videos" class="videos-container">
+            <div class="status-info">
+              <span id="roomInfo">Not in a room</span>
+              <span id="userCount" class="badge">0 users</span>
             </div>
-            <div class="video-controls">
-              <button
-                id="toggleMute"
-                class="button-icon"
-                title="Toggle microphone"
+            <div class="local-video-container">
+              <div id="localCameraOff" class="camera-off-overlay camera-hidden">
+                <i data-lucide="video-off" class="camera-off-icon"></i>
+              </div>
+              <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline
+                class="local-video"
+              ></video>
+            </div>
+            <div class="remote-video-container">
+              <div
+                id="remoteCameraOff"
+                class="camera-off-overlay camera-hidden"
               >
-                <i data-lucide="mic" class="icon"></i>
-                <span class="text">Unmuted</span>
-              </button>
-              <button
-                id="startCall"
-                class="button-icon button-success"
-                disabled
-              >
-                <i data-lucide="phone-call" class="icon"></i>
-                <span class="text">Start Call</span>
-              </button>
-              <button id="endCall" class="button-icon button-danger" hidden>
-                <i data-lucide="phone-missed" class="icon"></i>
-                <span class="text">End Call</span>
-              </button>
-              <button
-                id="toggleCamera"
-                class="button-icon"
-                title="Toggle camera"
-              >
-                <i data-lucide="video" class="icon"></i>
-                <span class="text">Camera On</span>
-              </button>
+                <i data-lucide="video-off" class="camera-off-icon"></i>
+              </div>
+              <video
+                id="remoteVideo"
+                autoplay
+                playsinline
+                class="remote-video"
+              ></video>
             </div>
           </div>
-
-          <div class="chat-section">
-            <div id="chat" class="chat-messages"></div>
-            <form id="messageForm" class="message-form">
-              <input id="message" type="text" placeholder="Type a message..." />
-              <button id="sendMessage" type="submit" class="button" disabled>
-                Send
-              </button>
-            </form>
+          <div class="video-controls">
+            <button
+              id="toggleMute"
+              class="button-icon"
+              title="Toggle microphone"
+            >
+              <i data-lucide="mic" class="icon"></i>
+              <span class="text">Unmuted</span>
+            </button>
+            <button id="startCall" class="button-icon button-success" disabled>
+              <i data-lucide="phone-call" class="icon"></i>
+              <span class="text">Start Call</span>
+            </button>
+            <button id="endCall" class="button-icon button-danger" hidden>
+              <i data-lucide="phone-missed" class="icon"></i>
+              <span class="text">End Call</span>
+            </button>
+            <button id="toggleCamera" class="button-icon" title="Toggle camera">
+              <i data-lucide="video" class="icon"></i>
+              <span class="text">Camera On</span>
+            </button>
           </div>
         </div>
+        <!-- /Video -->
+
+        <!-- Chat -->
+        <div class="chat-section">
+          <div id="chat" class="chat-messages"></div>
+          <form id="messageForm" class="message-form">
+            <input id="message" type="text" placeholder="Type a message..." />
+            <button id="sendMessage" type="submit" class="button" disabled>
+              Send
+            </button>
+          </form>
+        </div>
+        <!-- /Chat -->
       </div>
     </div>
     <script type="module" src="./src/room.ts"></script>

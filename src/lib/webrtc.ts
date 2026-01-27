@@ -13,6 +13,7 @@
 */
 
 import { SignalingClient } from "./signaling";
+import type { MessageType } from "./types";
 
 export class WebRTCManager {
   private pc: RTCPeerConnection | null = null;
@@ -20,10 +21,7 @@ export class WebRTCManager {
   private signaling: SignalingClient;
   private localVideo: HTMLVideoElement;
   private remoteVideo: HTMLVideoElement;
-  private onMessage: (
-    text: string,
-    type?: "default" | "error" | "success" | "info",
-  ) => void;
+  private onMessage: (text: string, type?: MessageType) => void;
   private onRemoteCameraChange?: (isCameraOff: boolean) => void;
   private remoteStreamConnected = false;
 
@@ -38,10 +36,7 @@ export class WebRTCManager {
     signaling: SignalingClient,
     localVideo: HTMLVideoElement,
     remoteVideo: HTMLVideoElement,
-    onMessage: (
-      text: string,
-      type?: "default" | "error" | "success" | "info",
-    ) => void,
+    onMessage: (text: string, type?: MessageType) => void,
     onRemoteCameraChange?: (isCameraOff: boolean) => void,
   ) {
     this.signaling = signaling;
