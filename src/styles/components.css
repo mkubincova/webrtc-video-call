@@ -1,4 +1,4 @@
-/* Reusable Classes & Components */
+/* Reusable Components */
 
 /* Buttons */
 .button {
@@ -21,14 +21,13 @@
   }
 
   &:disabled {
-    background-color: var(--color-disabled-bg) !important;
-    color: var(--color-disabled-text) !important;
+    background-color: var(--color-bg-disabled) !important;
     opacity: 1;
   }
 }
 
 .button.button-danger {
-  background-color: red;
+  background-color: var(--color-red);
 }
 
 .button-sm {
@@ -57,8 +56,7 @@
   }
 
   &:disabled .icon {
-    background-color: var(--color-disabled-bg) !important;
-    color: var(--color-disabled-text) !important;
+    background-color: var(--color-bg-disabled) !important;
     opacity: 1;
   }
 
@@ -83,33 +81,38 @@
 
 .button-icon.button-danger {
   & .icon {
-    background: red;
+    background: var(--color-red);
   }
 }
 
 .button-icon.button-success {
   & .icon {
-    background: #0cd901;
+    background: var(--color-green);
   }
 }
 
 /* Badges */
 .badge {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 5px;
   width: max-content;
-  padding: 3px 8px;
+  padding: 4px 8px;
   font-size: 0.8rem;
   font-weight: normal;
-  color: #fff;
   border-radius: var(--border-radius-sm);
+  background-color: #9f9f9f4d;
+  color: #9f9f9f;
 }
 
 .badge-success {
-  background-color: var(--color-success-dark);
+  color: var(--color-green);
+  background-color: color-mix(in srgb, var(--color-green) 30%, transparent);
 }
 
 .badge-warning {
-  background-color: var(--color-warning-dark);
+  color: var(--color-yellow);
+  background-color: color-mix(in srgb, var(--color-yellow) 30%, transparent);
 }
 
 /* Sidebar  */
@@ -125,7 +128,7 @@
   font-family: monospace, "Lucida Console", "Courier New", Consolas;
   transform: translateX(0);
   transition: transform 0.3s ease;
-  background: #000;
+  background: var(--color-bg-dark);
   color: #fff;
 }
 
@@ -142,7 +145,7 @@
   top: 50px;
   left: 100%;
   z-index: 1001;
-  background-color: rgb(0, 191, 255);
+  background-color: var(--color-purple);
   border: none;
   border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
   padding: 8px;

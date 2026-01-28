@@ -4,7 +4,7 @@
  ═══════════════════════════════════════════════════════════════════════════════
 */
 
-import type { MessageType, RoomDOMElements } from "./types";
+import type { MessageAuthor, MessageType, RoomDOMElements } from "./types";
 
 /**
  * Initialize and validate all DOM elements for the room page
@@ -172,6 +172,10 @@ export function updateCameraButton(
   }
   if (iconSpan) {
     iconSpan.setAttribute("data-lucide", isCameraOff ? "video-off" : "video");
+    // Refresh the icon
+    if (typeof (window as any).lucide !== "undefined") {
+      (window as any).lucide.createIcons();
+    }
   }
 
   // Show/hide camera overlay for local video
@@ -196,12 +200,25 @@ export function updateRemoteCameraState(
 
 export function appendUserMessage(
   container: HTMLDivElement,
-  author: string,
+  authorType: MessageAuthor,
   text: string,
-  color = "#000",
+  authorName?: string,
 ) {
-  const el = document.createElement("p");
-  el.innerHTML = `<strong style="color:${color}">${author}:</strong> ${text}`;
+  const el = document.createElement("div");
+
+  el.classList.add(`message-${authorType}`);
+
+  // Create message content
+  if (authorType === "self") {
+    el.innerHTML = `<div class="message-content">${text}</div>`;
+  } else {
+    const displayName = authorName || "Other user";
+    el.innerHTML = `
+      <div class="message-author">${displayName}</div>
+      <div class="message-content">${text}</div>
+    `;
+  }
+
   container.appendChild(el);
   container.scrollTop = container.scrollHeight; // auto-scroll
 }

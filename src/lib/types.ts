@@ -7,9 +7,10 @@
 */
 
 /**
- * Message type for system messages and notifications
+ * Message types for chat and system notifications
  */
 export type MessageType = "default" | "error" | "success" | "info";
+export type MessageAuthor = "self" | "other";
 
 /**
  * DOM Elements Interface for the room page

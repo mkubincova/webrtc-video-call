@@ -125,6 +125,13 @@ function leaveRoom(client: Client) {
       payload: { count: roomClients.size },
     });
 
+    // Log when someone leaves the room
+    console.log(
+      pc.yellow(
+        `${client.username} left room ${client.roomId}. Room size: ${roomClients.size}`,
+      ),
+    );
+
     // Remove empty rooms
     if (roomClients.size === 0) {
       rooms.delete(client.roomId);
@@ -132,7 +139,6 @@ function leaveRoom(client: Client) {
     }
   }
 
-  console.log(pc.yellow(`${client.username} left room ${client.roomId}`));
   client.roomId = undefined;
   client.username = undefined;
 }

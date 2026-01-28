@@ -1,14 +1,11 @@
 /* Main Stylesheet - Imports all modular CSS files */
 
-/* CSS Variables and Custom Properties */
-@import './styles/variables.css';
-
-/* Base styles for global elements */
-@import './styles/base.css';
+/* Base styles */
+@import "./styles/base.css";
 
 /* Reusable components */
-@import './styles/components.css';
+@import "./styles/components.css";
 
 /* Page-specific styles */
-@import './styles/homepage.css';
-@import './styles/room.css';
+@import "./styles/homepage.css";
+@import "./styles/room.css";

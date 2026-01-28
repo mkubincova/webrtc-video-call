@@ -1,4 +1,22 @@
-/* Base Styles - Global elements */
+* {
+  /* Border radius */
+  --border-radius: 1.2em;
+  --border-radius-sm: 0.5em;
+
+  /* Colors */
+  --color-bg-light: #f1f1f1;
+  --color-bg-dark: #000000;
+  --color-bg-disabled: #dadada;
+  --color-red: #f23940;
+  --color-green: #9fe026;
+  --color-yellow: #ffdc5b;
+  --color-purple: #cfb0f9;
+
+  --terminal-info: #00d9ff;
+  --terminal-success: #42b883;
+  --terminal-error: #ff5555;
+}
+
 html {
   font-family: Arial, sans-serif;
   height: 100%;
@@ -42,6 +60,6 @@ video {
   &.homepage {
     justify-content: center;
     align-items: center;
-    background-color: var(--color-background);
+    background-color: var(--color-bg-light);
   }
 }

@@ -20,6 +20,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get("username")?.trim();
 const roomId = urlParams.get("roomId")?.trim();
 
+// Track the other user's name for better chat display
+let otherUserName: string | null = null;
+
 if (!username || !roomId) {
   alert("Invalid room access. Please join through the main page.");
   window.location.href = "/";
@@ -134,10 +137,11 @@ signaling.on("message", (msg) => {
       break;
 
     case "user-joined":
+      otherUserName = msg.payload.username;
       appendSystemMessage(
         chat.systemMessagesDiv,
         `<strong>${msg.payload.username}</strong> joined the room`,
-        "info",
+        "success",
       );
       break;
 
@@ -147,16 +151,23 @@ signaling.on("message", (msg) => {
         `<strong>${msg.payload.username}</strong> left the room`,
         "error",
       );
+      // Clear the other user name if they left
+      if (otherUserName === msg.payload.username) {
+        otherUserName = null;
+      }
       break;
 
     case "room-user-count":
-      const icon = msg.payload.count > 1 ? "🟢" : "🟡";
       const className =
         msg.payload.count > 1 ? "badge-success" : "badge-warning";
-      room.userCount.textContent = `${icon} ${msg.payload.count} user${
+      room.userCount.textContent = `${msg.payload.count} user${
         msg.payload.count === 1 ? "" : "s"
       }`;
-      room.userCount.className = `badge ${className}`;
+      // Apply styling to the parent badge element
+      const badgeElement = room.userCount.parentElement;
+      if (badgeElement) {
+        badgeElement.className = `badge ${className}`;
+      }
       if (msg.payload.count > 1) {
         video.startCallBtn.disabled = false;
         chat.sendMessageBtn.disabled = false;
@@ -169,9 +180,9 @@ signaling.on("message", (msg) => {
     case "chat":
       appendUserMessage(
         chat.chatDiv,
-        msg.payload.username,
+        "other",
         msg.payload.text,
-        "#3c2f55",
+        msg.payload.username,
       );
       break;
 
@@ -216,7 +227,7 @@ function sendMessage() {
   const text = chat.messageInput.value.trim();
   if (!text) return;
 
-  appendUserMessage(chat.chatDiv, "You", text, "#000");
+  appendUserMessage(chat.chatDiv, "self", text);
   signaling.send("chat", { username, text, roomId });
 
   chat.messageInput.value = "";
